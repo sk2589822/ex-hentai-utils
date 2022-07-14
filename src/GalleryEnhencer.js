@@ -10,7 +10,7 @@
 (() => {
   window.onload = () => {
     injectCss()
-    preloadTorrentLinks()
+    preloadLinks()
     fetchAllImages()
   }
 
@@ -68,64 +68,109 @@
     }
   }
 
-  async function preloadTorrentLinks() {
-    const log = logTemplate.bind(this, 'preload Torrent Links')
-    log('Start')
+  async function preloadLinks() {
+    const configList = [
+      {
+        feature: 'Preload Torrent Links',
+        linkSelector: '#gd5 > p:nth-child(3)',
+        contentSelector: '#torrentinfo form > div'
+      },
+      {
+        feature: 'Preload Archive Links',
+        linkSelector: '#gd5 > p:nth-child(2)',
+        contentSelector: '#db'
+      }
+    ]
 
-    const linkContainer = document.querySelector('#gd5 > p:nth-child(3)')
-    const linkElement = linkContainer.querySelector('a')
+    const preloadPromises = configList.map(config => preloadLink(config))
+    await Promise.all(preloadPromises)
+    setHentaiAtHomeEvent()
 
-    if (!hasTorrents(linkElement)) {
-      log('No torrents')
-      return
+    async function preloadLink(config) {
+      const { feature, linkSelector, contentSelector } = config
+      const log = logTemplate.bind(this, feature)
+      log('Start')
+  
+      const [linkContainer, linkElement] = getlinkElements(linkSelector)
+  
+      const link = getLink(linkElement)
+      const doc = await getDoc(link)
+      const torrentsDiv = await getMainContent(doc, contentSelector)
+      linkContainer.append(torrentsDiv)
+      setToggleEvent(linkElement, torrentsDiv)
+  
+      log('End')
     }
 
-    const link = getLink(linkElement)
-    const torrentsDiv = await getTorrentsDiv(link)
-    linkContainer.append(torrentsDiv)
-    setToggleEvent(linkElement, torrentsDiv)
-
-    log('End')
-
-    function hasTorrents(linkElement) {
-      return linkElement.innerText !== 'Torrent Download (0)'
+    function getlinkElements(selector) {
+      const container = document.querySelector(selector)
+      const element = container.querySelector('a')
+  
+      return [container, element]
     }
-
+  
     function getLink(linkElement) {
       return linkElement
       .getAttribute('onclick')
-      .match(/(https:\/\/exhentai\.org\/gallerytorrents\.php\?gid=\d+&t=\S+)',\d+,\d+/)[1]
+      .match(/(https:\/\/\S+)',\d+,\d+/)[1]
     }
 
-    async function getTorrentsDiv() {
-      const doc = await getDoc(link)
-      const torrentsDiv = doc.querySelector('#torrentinfo form > div')
-      torrentsDiv.removeAttribute('style')
-      torrentsDiv.classList.add('torrents')
-      return torrentsDiv
+    async function getMainContent(doc, selector) {
+      const content = doc.querySelector(selector)
+      content.removeAttribute('style')
+      content.classList.add('popup')
+      return content
     }
-
-    function setToggleEvent(linkElement, torrentsDiv) {
+  
+    function setToggleEvent(linkElement, popup) {
       linkElement.removeAttribute('onclick')
       linkElement.addEventListener('click', (e) => {
         e.preventDefault()
 
-        const showClass = 'torrents--show'
-        if (torrentsDiv.classList.contains(showClass)) {
-          torrentsDiv.classList.remove(showClass)
+        const showClass = 'popup--show'
+        if (popup.classList.contains(showClass)) {
+          popup.classList.remove(showClass)
         } else {
-          torrentsDiv.classList.add(showClass)
+          popup.classList.add(showClass)
         }
       })
     }
+
+    /**
+     * 重新實作 Hentai@Home 的下載事件
+     * 
+     * 原本會開一個新的頁面，裡面有 submit form 的 function
+     * 因為改用 preload 就沒辦法呼叫該 function，所以這邊要補實作
+     */
+    function setHentaiAtHomeEvent() {
+      const hentaiAtHomeLinks = document.querySelectorAll('#db table td a')
+
+      for (link of hentaiAtHomeLinks) {
+        const postUrl = document.querySelector('#hathdl_form').getAttribute('action')
+        const resolution = link.getAttribute('onclick').split("'")[1]
+        link.removeAttribute('onclick')
+
+        link.addEventListener('click', async () => {
+          const formData = new FormData()
+          formData.append('hathdl_xres', resolution)
+          const doc = await getDoc(postUrl, {
+            method: 'POST',
+            body: formData
+          })
+          // TODO: 通知
+        })
+      }
+    }
+
+    // TODO: 直接下載的實作
   }
 
   function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  async function getDoc(url) {
-    const response = await fetch(url)
+  async function getDoc(url, options) {
+    const response = await fetch(url, options)
     const html = await response.text()
     return new DOMParser().parseFromString(html, 'text/html');
   }
@@ -143,22 +188,36 @@
   function injectCss() {
     const style = document.createElement('style');
     style.textContent = `
-      .torrents {
+      .popup {
         position: absolute;
+        top: -99999px;
         right: -25%;
         padding: 20px;
         border-radius: 20px;
         border: white solid 3px;
         background-color: #34353b;
+        text-align: center;
         opacity: 0;
         transition: opacity 0.3s;
       }
 
-      .torrents--show {
+      .popup--show {
+        top: initial;
         opacity: 1;
+      }
+
+      .popup a {
+        text-decoration: underline;
       }
     `;
 
     document.querySelector('head').append(style);
   }
 })()
+
+// 原生 Archive function
+function do_hathdl(xres) {
+	document.getElementById("hathdl_xres").value = xres;
+	document.getElementById("hathdl_form").submit();
+	return false;
+}
