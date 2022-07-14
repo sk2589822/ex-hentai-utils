@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        Fetch All Images - exhentai.org
+// @name        Gallery Enhencer - exhentai.org
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
