@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.2
+// @version     1.0.3
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -152,6 +152,9 @@
      * 因為改用 preload 就沒辦法呼叫該 function，所以這邊要補實作
      */
     function setHentaiAtHomeEvent() {
+      const log = logTemplate.bind(this, 'Hentai At Home Event')
+      const toastElement = appendToastElement()
+
       const hentaiAtHomeLinks = document.querySelectorAll('#db table td a')
 
       for (link of hentaiAtHomeLinks) {
@@ -166,8 +169,29 @@
             method: 'POST',
             body: formData
           })
-          // TODO: 通知
+
+          const response = doc.querySelector('#db').innerHTML
+          showToast(response)
         })
+      }
+
+      function appendToastElement() {
+        const body = document.querySelector('body')
+        const toast = document.createElement('div')
+        toast.classList.add('toast')
+        toast.addEventListener('animationend', function () {
+          this.classList.remove('toast--show')
+        })
+
+        body.append(toast)
+
+        return toast
+      }
+
+      function showToast(response) {
+        log(response)
+        toastElement.innerHTML = response
+        toastElement.classList.add('toast--show')
       }
     }
 
@@ -248,6 +272,48 @@
       .popup a {
         text-decoration: underline;
       }
+
+      .toast {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: gray;
+        font-size: 16px;
+        z-index: 100;
+        opacity: 0;
+      }
+
+      .toast--show {
+        animation: show-toast 5s linear;
+      }
+
+      .toast h1 {
+        margin: 0;
+      }
+
+      @keyframes show-toast {
+        0% {
+          top: 12px;
+          opacity: 0;
+        }
+
+        10% {
+          top: 10px;
+          opacity: 1;
+        }
+
+        80% {
+          opacity: 1;
+        }
+
+        100% {
+          opacity: 0;
+        }
+      }
+    }
+
+
     `;
 
     document.querySelector('head').append(style);
