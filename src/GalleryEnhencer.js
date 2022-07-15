@@ -230,7 +230,7 @@
       .popup {
         position: absolute;
         top: -99999px;
-        right: -25%;
+        right: 0;
         padding: 20px;
         border-radius: 20px;
         border: white solid 3px;
