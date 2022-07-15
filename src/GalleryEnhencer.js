@@ -3,17 +3,20 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.1
+// @version     1.0.3
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
 (() => {
   window.onload = () => {
     injectCss()
-    preloadTorrentLinks()
+    preloadLinks()
     fetchAllImages()
   }
 
+  /**
+   * 若 gallery 的頁數超過1頁，在第1頁時，會依序載入後面的頁面 (間隔3秒)
+   */
   async function fetchAllImages() {
     const log = logTemplate.bind(this, 'Fetch All Images')
 
@@ -68,55 +71,160 @@
     }
   }
 
-  async function preloadTorrentLinks() {
-    const log = logTemplate.bind(this, 'preload Torrent Links')
-    log('Start')
+  /**
+   * 預先載入 Torrent 和 Archive 視窗
+   * 
+   * 同時把原先的 window.open() popup 改為在同一個頁面內的 popup
+   */
+  async function preloadLinks() {
+    const configList = [
+      {
+        feature: 'Preload Torrent Links',
+        linkSelector: '#gd5 > p:nth-child(3)',
+        contentSelector: '#torrentinfo form > div'
+      },
+      {
+        feature: 'Preload Archive Links',
+        linkSelector: '#gd5 > p:nth-child(2)',
+        contentSelector: '#db'
+      }
+    ]
 
-    const linkContainer = document.querySelector('#gd5 > p:nth-child(3)')
-    const linkElement = linkContainer.querySelector('a')
+    const preloadPromises = configList.map(config => preloadLink(config))
+    await Promise.all(preloadPromises)
+    setHentaiAtHomeEvent()
+    setArchiveEvent()
 
-    if (!hasTorrents(linkElement)) {
-      log('No torrents')
-      return
+    async function preloadLink(config) {
+      const { feature, linkSelector, contentSelector } = config
+      const log = logTemplate.bind(this, feature)
+      log('Start')
+  
+      const [linkContainer, linkElement] = getlinkElements(linkSelector)
+  
+      const link = getLink(linkElement)
+      const doc = await getDoc(link)
+      const torrentsDiv = await getMainContent(doc, contentSelector)
+      linkContainer.append(torrentsDiv)
+      setToggleEvent(linkElement, torrentsDiv)
+  
+      log('End')
     }
 
-    const link = getLink(linkElement)
-    const torrentsDiv = await getTorrentsDiv(link)
-    linkContainer.append(torrentsDiv)
-    setToggleEvent(linkElement, torrentsDiv)
-
-    log('End')
-
-    function hasTorrents(linkElement) {
-      return linkElement.innerText !== 'Torrent Download (0)'
+    function getlinkElements(selector) {
+      const container = document.querySelector(selector)
+      const element = container.querySelector('a')
+  
+      return [container, element]
     }
-
+  
     function getLink(linkElement) {
       return linkElement
       .getAttribute('onclick')
-      .match(/(https:\/\/exhentai\.org\/gallerytorrents\.php\?gid=\d+&t=\S+)',\d+,\d+/)[1]
+      .match(/(https:\/\/\S+)',\d+,\d+/)[1]
     }
 
-    async function getTorrentsDiv() {
-      const doc = await getDoc(link)
-      const torrentsDiv = doc.querySelector('#torrentinfo form > div')
-      torrentsDiv.removeAttribute('style')
-      torrentsDiv.classList.add('torrents')
-      return torrentsDiv
+    async function getMainContent(doc, selector) {
+      const content = doc.querySelector(selector)
+      content.removeAttribute('style')
+      content.classList.add('popup')
+      return content
     }
-
-    function setToggleEvent(linkElement, torrentsDiv) {
+  
+    function setToggleEvent(linkElement, popup) {
       linkElement.removeAttribute('onclick')
       linkElement.addEventListener('click', (e) => {
         e.preventDefault()
 
-        const showClass = 'torrents--show'
-        if (torrentsDiv.classList.contains(showClass)) {
-          torrentsDiv.classList.remove(showClass)
+        const showClass = 'popup--show'
+        if (popup.classList.contains(showClass)) {
+          popup.classList.remove(showClass)
         } else {
-          torrentsDiv.classList.add(showClass)
+          popup.classList.add(showClass)
         }
       })
+    }
+
+    /**
+     * 重新實作 Hentai@Home 的下載事件
+     * 
+     * 原本會開一個新的頁面，裡面有 submit form 的 function
+     * 因為改用 preload 就沒辦法呼叫該 function，所以這邊要補實作
+     */
+    function setHentaiAtHomeEvent() {
+      const log = logTemplate.bind(this, 'Hentai At Home Event')
+      const toastElement = appendToastElement()
+
+      const hentaiAtHomeLinks = document.querySelectorAll('#db table td a')
+
+      for (link of hentaiAtHomeLinks) {
+        const postUrl = document.querySelector('#hathdl_form').getAttribute('action')
+        const resolution = link.getAttribute('onclick').split("'")[1]
+        link.removeAttribute('onclick')
+
+        link.addEventListener('click', async () => {
+          const formData = new FormData()
+          formData.append('hathdl_xres', resolution)
+          const doc = await getDoc(postUrl, {
+            method: 'POST',
+            body: formData
+          })
+
+          const response = doc.querySelector('#db').innerHTML
+          showToast(response)
+        })
+      }
+
+      function appendToastElement() {
+        const body = document.querySelector('body')
+        const toast = document.createElement('div')
+        toast.classList.add('toast')
+        toast.addEventListener('animationend', function () {
+          this.classList.remove('toast--show')
+        })
+
+        body.append(toast)
+
+        return toast
+      }
+
+      function showToast(response) {
+        log(response)
+        toastElement.innerHTML = response
+        toastElement.classList.add('toast--show')
+      }
+    }
+
+    /**
+     * 點擊 Archive 的下載按鈕時，將原本的下載視窗彈出
+     * 
+     * 會做成彈窗是因為 Archive 的連結最後會連到不同 domain 的 url，會被 same orgin 擋。
+     */
+    function setArchiveEvent() {
+      const archiveDownloadButtons = document.querySelectorAll('form input[name="dlcheck"]')
+      for (const button of archiveDownloadButtons) {
+        button.addEventListener('click', e => {
+          e.preventDefault()
+          const buttonValue = button.getAttribute('value')
+          const form = button.parentElement.parentElement
+          const url = form.getAttribute('action')
+
+          const popupWindow = openWindow(url)
+          popupWindow.addEventListener('load', () => {
+            popupWindow.document.querySelector(`input[value="${buttonValue}"]`).click()
+          })
+        })
+      }
+
+      function openWindow(url) {
+        const width = 600
+        const height = 300
+        const left = (screen.width - 600) / 2
+        const top = (screen.height - 300) / 2
+        const target = `_archive+${String(Math.random()).split('.')[1]}`
+
+        return window.open(url, target,`width=${width},height=${height},top=${top},left=${left}`)
+      }
     }
   }
 
@@ -124,8 +232,8 @@
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  async function getDoc(url) {
-    const response = await fetch(url)
+  async function getDoc(url, options) {
+    const response = await fetch(url, options)
     const html = await response.text()
     return new DOMParser().parseFromString(html, 'text/html');
   }
@@ -143,22 +251,78 @@
   function injectCss() {
     const style = document.createElement('style');
     style.textContent = `
-      .torrents {
+      .popup {
         position: absolute;
-        right: -25%;
+        top: -99999px;
+        right: 0;
         padding: 20px;
         border-radius: 20px;
         border: white solid 3px;
         background-color: #34353b;
+        text-align: center;
         opacity: 0;
         transition: opacity 0.3s;
       }
 
-      .torrents--show {
+      .popup--show {
+        top: initial;
         opacity: 1;
       }
+
+      .popup a {
+        text-decoration: underline;
+      }
+
+      .toast {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: gray;
+        font-size: 16px;
+        z-index: 100;
+        opacity: 0;
+      }
+
+      .toast--show {
+        animation: show-toast 5s linear;
+      }
+
+      .toast h1 {
+        margin: 0;
+      }
+
+      @keyframes show-toast {
+        0% {
+          top: 12px;
+          opacity: 0;
+        }
+
+        10% {
+          top: 10px;
+          opacity: 1;
+        }
+
+        80% {
+          opacity: 1;
+        }
+
+        100% {
+          opacity: 0;
+        }
+      }
+    }
+
+
     `;
 
     document.querySelector('head').append(style);
   }
 })()
+
+// 原生 Archive function
+function do_hathdl(xres) {
+	document.getElementById("hathdl_xres").value = xres;
+	document.getElementById("hathdl_form").submit();
+	return false;
+}
