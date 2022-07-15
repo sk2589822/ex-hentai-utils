@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.1
+// @version     1.0.2
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -85,6 +85,7 @@
     const preloadPromises = configList.map(config => preloadLink(config))
     await Promise.all(preloadPromises)
     setHentaiAtHomeEvent()
+    setArchiveEvent()
 
     async function preloadLink(config) {
       const { feature, linkSelector, contentSelector } = config
@@ -162,7 +163,37 @@
       }
     }
 
-    // TODO: 直接下載的實作
+    /**
+     * 點擊 Archive 的下載按鈕時，將原本的下載視窗彈出
+     * 
+     * 會做成彈窗是因為 Archive 的連結最後會連到不同 domain 的 url，會被 same orgin 擋。
+     */
+    function setArchiveEvent() {
+      const archiveDownloadButtons = document.querySelectorAll('form input[name="dlcheck"]')
+      for (const button of archiveDownloadButtons) {
+        button.addEventListener('click', e => {
+          e.preventDefault()
+          const buttonValue = button.getAttribute('value')
+          const form = button.parentElement.parentElement
+          const url = form.getAttribute('action')
+
+          const popupWindow = openWindow(url)
+          popupWindow.addEventListener('load', () => {
+            popupWindow.document.querySelector(`input[value="${buttonValue}"]`).click()
+          })
+        })
+      }
+
+      function openWindow(url) {
+        const width = 600
+        const height = 300
+        const left = (screen.width - 600) / 2
+        const top = (screen.height - 300) / 2
+        const target = `_archive+${String(Math.random()).split('.')[1]}`
+
+        return window.open(url, target,`width=${width},height=${height},top=${top},left=${left}`)
+      }
+    }
   }
 
   function delay(ms) {
