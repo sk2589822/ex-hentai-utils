@@ -1,9 +1,12 @@
 # ex-hentai-utils
 
-## Fetch All Images
+## Gallery Enhencer
 > for gallery
 
-Load all images sequentially if the images number of gallery more than 200
+### 2 features now:
+1. Load all images sequentially if the images number of gallery more than 200
+2. Show popup div instead of window popup when click `Archive Download` or `Torrent Download`
+
 
 ## Multipage Viewer Utils
 > for Multipage Viewer
