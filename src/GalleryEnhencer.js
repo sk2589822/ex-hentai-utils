@@ -14,6 +14,9 @@
     fetchAllImages()
   }
 
+  /**
+   * 若 gallery 的頁數超過1頁，在第1頁時，會依序載入後面的頁面 (間隔3秒)
+   */
   async function fetchAllImages() {
     const log = logTemplate.bind(this, 'Fetch All Images')
 
@@ -68,6 +71,11 @@
     }
   }
 
+  /**
+   * 預先載入 Torrent 和 Archive 視窗
+   * 
+   * 同時把原先的 window.open() popup 改為在同一個頁面內的 popup
+   */
   async function preloadLinks() {
     const configList = [
       {
