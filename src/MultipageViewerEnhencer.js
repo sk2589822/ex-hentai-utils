@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        Multipage Viewer Utils - exhentai.org
+// @name        Multipage Viewer Enhencer - exhentai.org
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
