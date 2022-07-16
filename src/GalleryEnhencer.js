@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.3
+// @version     1.0.4
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -153,7 +153,7 @@
      */
     function setHentaiAtHomeEvent() {
       const log = logTemplate.bind(this, 'Hentai At Home Event')
-      const toastElement = appendToastElement()
+      const toastContainer = appendToastContainerToBody()
 
       const hentaiAtHomeLinks = document.querySelectorAll('#db table td a')
 
@@ -171,27 +171,32 @@
           })
 
           const response = doc.querySelector('#db').innerHTML
-          showToast(response)
+          log(response)
+          const toast = createToastElement(response)
+          toastContainer.append(toast)
         })
       }
 
-      function appendToastElement() {
+      function appendToastContainerToBody() {
         const body = document.querySelector('body')
+        const container = document.createElement('div')
+        container.classList.add('toast-container')
+
+        body.append(container)
+
+        return container
+      }
+
+      function createToastElement(response, toastContainer) {
         const toast = document.createElement('div')
+        toast.innerHTML = response
+
         toast.classList.add('toast')
         toast.addEventListener('animationend', function () {
-          this.classList.remove('toast--show')
+          this.remove()
         })
 
-        body.append(toast)
-
         return toast
-      }
-
-      function showToast(response) {
-        log(response)
-        toastElement.innerHTML = response
-        toastElement.classList.add('toast--show')
       }
     }
 
@@ -273,18 +278,22 @@
         text-decoration: underline;
       }
 
-      .toast {
+      .toast-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
         position: absolute;
         top: 10px;
         right: 10px;
+        z-index: 100;
+      }
+
+      .toast {
         padding: 10px;
         background-color: gray;
         font-size: 16px;
         z-index: 100;
         opacity: 0;
-      }
-
-      .toast--show {
         animation: show-toast 5s linear;
       }
 
@@ -311,9 +320,6 @@
           opacity: 0;
         }
       }
-    }
-
-
     `;
 
     document.querySelector('head').append(style);
