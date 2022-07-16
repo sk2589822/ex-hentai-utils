@@ -3,12 +3,18 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.4
+// @version     1.0.5
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
 (() => {
-  window.onload = () => {
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    main()
+  } else {
+    document.addEventListener("DOMContentLoaded", main)
+  }
+  
+  function main() {
     injectCss()
     preloadLinks()
     fetchAllImages()
