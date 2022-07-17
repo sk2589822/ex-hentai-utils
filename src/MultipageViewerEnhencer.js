@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.1
+// @version     1.0.2
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -15,6 +15,7 @@
   
   let pageElevatorElem = null
   appendPageElevator()
+  setRightEdgeScrollEvent()
   overrideKeyBoardEvent()
   overrideImagesScrollEvent()
   
@@ -64,7 +65,7 @@
     pageElevatorElem = document.createElement('input')
     pageElevatorElem.classList.add('page-selector')
     pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數
-
+    
     pageElevatorElem.addEventListener('keydown', e => {
       if (e.code === 'Enter' || e.code === 'NumpadEnter') {
         const page = e.target.value
@@ -73,6 +74,7 @@
     })
     
     pageElevatorElem.addEventListener('wheel', e => {
+      e.stopPropagation()
       if (Math.sign(e.deltaY) === -1) { // 滾輪向上
         currentpage = --currentpage > 0 ? currentpage : 1
         goToPage(currentpage) 
@@ -81,7 +83,24 @@
         goToPage(currentpage)
       }
     })
+    
     document.querySelector('#bar3').append(pageElevatorElem)
+  }
+  /**
+   * 滑鼠移到最右邊時，滾動直接換頁
+   */
+  function setRightEdgeScrollEvent() {
+    // ExHentai 的網頁有覆寫 #pane_images的 wheel 事件，而因為沒寫好(?)導致滑鼠移到最右邊時觸發的 target 是 html
+    // 就將錯就錯
+    document.querySelector('html').addEventListener('wheel', e => {
+      if (Math.sign(e.deltaY) === -1) { // 滾輪向上
+        currentpage = --currentpage > 0 ? currentpage : 1
+        goToPage(currentpage) 
+      } else { // 滾輪向下
+        currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
+        goToPage(currentpage)
+      }
+    })
   }
   
   function goToPage(index) {
