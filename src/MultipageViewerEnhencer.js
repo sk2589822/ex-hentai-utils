@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0
+// @version     1.0.1
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -64,11 +64,21 @@
     pageElevatorElem = document.createElement('input')
     pageElevatorElem.classList.add('page-selector')
     pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數
+
     pageElevatorElem.addEventListener('keydown', e => {
       if (e.code === 'Enter' || e.code === 'NumpadEnter') {
         const page = e.target.value
         goToPage(page)
-        
+      }
+    })
+    
+    pageElevatorElem.addEventListener('wheel', e => {
+      if (Math.sign(e.deltaY) === -1) { // 滾輪向上
+        currentpage = --currentpage > 0 ? currentpage : 1
+        goToPage(currentpage) 
+      } else { // 滾輪向下
+        currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
+        goToPage(currentpage)
       }
     })
     document.querySelector('#bar3').append(pageElevatorElem)
