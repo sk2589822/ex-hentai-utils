@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.6
+// @version     1.0.7
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -16,16 +16,16 @@
   }
 
   function main() {
-  appendPageIndex()
+    appendPageIndex()
   
-  showThumbsWhenHover()
-  
-  const pageElevatorElem = appendPageElevator()
-  setMouseWheelEvent(pageElevatorElem)
-  overrideKeyBoardEvent()
-  overrideImagesScrollEvent(pageElevatorElem)
+    showThumbsWhenHover()
+    
+    const pageElevatorElem = appendPageElevator()
+    setMouseWheelEvent(pageElevatorElem)
+    overrideKeyBoardEvent()
+    overrideImagesScrollEvent(pageElevatorElem)
 
-  injectCss()
+    injectCss()
   }
   
   // 於圖片資訊欄新增目前頁數/總共頁數
@@ -115,6 +115,7 @@
   }
   
   function goToPage(index) {
+    currentpage = index
     document.getElementById(`image_${index}`).scrollIntoView();
   }
   
