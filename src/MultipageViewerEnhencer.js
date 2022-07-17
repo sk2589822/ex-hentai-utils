@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.2
+// @version     1.0.3
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -17,6 +17,8 @@
   setRightEdgeScrollEvent()
   overrideKeyBoardEvent()
   overrideImagesScrollEvent(pageElevatorElem)
+
+  injectCss()
   
   // 於圖片資訊欄新增目前頁數/總共頁數
   function appendPageIndex() {
@@ -46,11 +48,7 @@
   function showThumbsWhenHover() {
     const paneThumbs = document.querySelector('#pane_thumbs')
     const paneThumbsStyle = paneThumbs.style
-    paneThumbsStyle.display = 'block'
-    paneThumbsStyle.opacity = 0
-    paneThumbsStyle.zIndex = 1
-    paneThumbsStyle.transition = 'opacity .3s'
-
+    
     document.addEventListener('mousemove', e => {
       if (e.clientX < paneThumbs.clientWidth + 15) {
         paneThumbsStyle.opacity = 1
@@ -83,7 +81,7 @@
       }
     })
     
-    document.querySelector('#bar3').append(pageElevatorElem)
+    document.querySelector('#pane_outer').append(pageElevatorElem)
 
     return pageElevatorElem
   }
@@ -138,6 +136,28 @@
       }
     }
   }
-  
-})()
 
+  function injectCss() {
+    const style = document.createElement('style');
+    style.textContent = `
+      div#pane_thumbs {
+        display: block;
+        opacity: 0;
+        z-index: 1;
+        transition: opacity .3s;
+      }
+
+      .page-elevator {
+        position: absolute;
+        top: 50%;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        transform: translate(0, -50%);
+        text-align: center;
+      }
+    `;
+
+    document.querySelector('head').append(style);
+  }
+})()
