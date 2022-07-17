@@ -9,6 +9,13 @@
 // ==/UserScript==
 
 (() => {
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    main()
+  } else {
+    document.addEventListener("DOMContentLoaded", main)
+  }
+
+  function main() {
   appendPageIndex()
   
   showThumbsWhenHover()
@@ -19,6 +26,7 @@
   overrideImagesScrollEvent(pageElevatorElem)
 
   injectCss()
+  }
   
   // 於圖片資訊欄新增目前頁數/總共頁數
   function appendPageIndex() {
