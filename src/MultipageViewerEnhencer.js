@@ -13,11 +13,10 @@
   
   showThumbsWhenHover()
   
-  let pageElevatorElem = null
-  appendPageElevator()
+  const pageElevatorElem = appendPageElevator()
   setRightEdgeScrollEvent()
   overrideKeyBoardEvent()
-  overrideImagesScrollEvent()
+  overrideImagesScrollEvent(pageElevatorElem)
   
   // 於圖片資訊欄新增目前頁數/總共頁數
   function appendPageIndex() {
@@ -62,8 +61,8 @@
   }
   
   function appendPageElevator() {
-    pageElevatorElem = document.createElement('input')
-    pageElevatorElem.classList.add('page-selector')
+    const pageElevatorElem = document.createElement('input')
+    pageElevatorElem.classList.add('page-elevator')
     pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數
     
     pageElevatorElem.addEventListener('keydown', e => {
@@ -85,6 +84,8 @@
     })
     
     document.querySelector('#bar3').append(pageElevatorElem)
+
+    return pageElevatorElem
   }
   /**
    * 滑鼠移到最右邊時，滾動直接換頁
@@ -108,7 +109,7 @@
   }
   
   // onscroll 時同時更新 currentpage 至 pageElevatorElem 的 value
-  function overrideImagesScrollEvent() {
+  function overrideImagesScrollEvent(pageElevatorElem) {
     // exhentai 原為 pane_images.onscroll = preload_scroll_images
      pane_images.onscroll = () => {
       preload_scroll_images()
