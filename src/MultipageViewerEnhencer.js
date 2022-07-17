@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.5
+// @version     1.0.6
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -14,7 +14,7 @@
   showThumbsWhenHover()
   
   const pageElevatorElem = appendPageElevator()
-  setRightEdgeScrollEvent()
+  setMouseWheelEvent(pageElevatorElem)
   overrideKeyBoardEvent()
   overrideImagesScrollEvent(pageElevatorElem)
 
@@ -85,13 +85,17 @@
 
     return pageElevatorElem
   }
+
   /**
-   * 滑鼠移到最右邊時，滾動直接換頁
+   * 滑鼠移到右側時，滾動直接換頁
    */
-  function setRightEdgeScrollEvent() {
-    // ExHentai 的網頁有覆寫 #pane_images的 wheel 事件，而因為沒寫好(?)導致滑鼠移到最右邊時觸發的 target 是 html
-    // 就將錯就錯
-    document.querySelector('html').addEventListener('wheel', e => {
+  function setMouseWheelEvent(pageElevatorElem) {
+    document.querySelector('#pane_images').addEventListener('mousewheel', e => {
+      // 以 page elevator 左側當作界線
+      if (e.x < pageElevatorElem.offsetLeft) {
+        return
+      }
+
       if (Math.sign(e.deltaY) === -1) { // 滾輪向上
         currentpage = --currentpage > 0 ? currentpage : 1
         goToPage(currentpage) 
@@ -140,6 +144,18 @@
   function injectCss() {
     const style = document.createElement('style');
     style.textContent = `
+      body {
+        padding: 0
+      }
+
+      div#pane_outer {
+        width: 100% !important;
+      }
+
+      div#pane_images {
+        width: 100% !important;
+      }
+
       div#pane_thumbs {
         display: block;
         opacity: 0;
