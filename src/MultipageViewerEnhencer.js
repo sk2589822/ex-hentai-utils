@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.3
+// @version     1.0.4
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -64,6 +64,7 @@
     pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數
     
     pageElevatorElem.addEventListener('keydown', e => {
+      e.stopPropagation()
       if (e.code === 'Enter' || e.code === 'NumpadEnter') {
         const page = e.target.value
         goToPage(page)
