@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.4
+// @version     1.0.5
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -47,13 +47,12 @@
   // 滑鼠移到左方時顯示縮圖清單
   function showThumbsWhenHover() {
     const paneThumbs = document.querySelector('#pane_thumbs')
-    const paneThumbsStyle = paneThumbs.style
-    
+
     document.addEventListener('mousemove', e => {
-      if (e.clientX < paneThumbs.clientWidth + 15) {
-        paneThumbsStyle.opacity = 1
+      if (e.clientX < paneThumbs.offsetWidth + 15) {
+        paneThumbs.style.opacity = 1
       } else {
-        paneThumbsStyle.opacity = 0
+        paneThumbs.style.opacity = 0
       }
     })
   }
