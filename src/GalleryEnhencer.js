@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.5
+// @version     1.0.6
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -55,15 +55,15 @@
     log('Done')
   
     function isFirstPage() {
-      return document.querySelector('.ptds').innerText === '1'
+      return getElement('.ptds').innerText === '1'
     }
 
     function getImageElements(doc) {
-      return doc.querySelectorAll('.gdtl')
+      return getElement('.gdtl', doc)
     }
   
     function getPageUrls() {
-      const indexes = [...document.querySelectorAll('.ptb td:not(.ptds)')]
+      const indexes = [...getElements('.ptb td:not(.ptds)')]
       indexes.pop()
       indexes.shift()
   
@@ -71,8 +71,7 @@
     }
   
     function appendImages(elems) {
-      document
-        .querySelector('#gdt > .c')
+      getElement('#gdt > .c')
         .before(...elems)
     }
   }
@@ -86,52 +85,47 @@
     const configList = [
       {
         feature: 'Preload Torrent Links',
-        linkSelector: '#gd5 > p:nth-child(3)',
+        linkSelector: '#gd5 > p:nth-child(3) a',
         contentSelector: '#torrentinfo form > div'
       },
       {
         feature: 'Preload Archive Links',
-        linkSelector: '#gd5 > p:nth-child(2)',
+        linkSelector: '#gd5 > p:nth-child(2) a',
         contentSelector: '#db'
       }
     ]
 
     const preloadPromises = configList.map(config => preloadLink(config))
     await Promise.all(preloadPromises)
+
     setHentaiAtHomeEvent()
     setArchiveEvent()
 
-    async function preloadLink(config) {
-      const { feature, linkSelector, contentSelector } = config
+    async function preloadLink({ feature, linkSelector, contentSelector }) {
       const log = logTemplate.bind(this, feature)
       log('Start')
-  
-      const [linkContainer, linkElement] = getlinkElements(linkSelector)
-  
+
+      const linkElement = getElement(linkSelector)
       const link = getLink(linkElement)
       const doc = await getDoc(link)
-      const torrentsDiv = await getMainContent(doc, contentSelector)
-      linkContainer.append(torrentsDiv)
-      setToggleEvent(linkElement, torrentsDiv)
-  
+      const popupContent = getPopupContent(doc, contentSelector)
+      linkElement.after(popupContent)
+      
+      setToggleEvent(linkElement, popupContent)
+      
       log('End')
-    }
 
-    function getlinkElements(selector) {
-      const container = document.querySelector(selector)
-      const element = container.querySelector('a')
-  
-      return [container, element]
+      return doc
     }
   
     function getLink(linkElement) {
       return linkElement
-      .getAttribute('onclick')
-      .match(/(https:\/\/\S+)',\d+,\d+/)[1]
+        .getAttribute('onclick')
+        .match(/(https:\/\/\S+)',\d+,\d+/)[1]
     }
 
-    async function getMainContent(doc, selector) {
-      const content = doc.querySelector(selector)
+    function getPopupContent(doc, selector) {
+      const content = getElement(selector, doc)
       content.removeAttribute('style')
       content.classList.add('popup')
       return content
@@ -161,10 +155,10 @@
       const log = logTemplate.bind(this, 'Hentai At Home Event')
       const toastContainer = appendToastContainerToBody()
 
-      const hentaiAtHomeLinks = document.querySelectorAll('#db table td a')
+      const hentaiAtHomeLinks = getElements('#db table td a')
 
       for (link of hentaiAtHomeLinks) {
-        const postUrl = document.querySelector('#hathdl_form').getAttribute('action')
+        const postUrl = getElement('#hathdl_form').getAttribute('action')
         const resolution = link.getAttribute('onclick').split("'")[1]
         link.removeAttribute('onclick')
 
@@ -176,7 +170,7 @@
             body: formData
           })
 
-          const response = doc.querySelector('#db').innerHTML
+          const response = getElement('#db', doc)
           log(response)
           const toast = createToastElement(response)
           toastContainer.append(toast)
@@ -184,7 +178,7 @@
       }
 
       function appendToastContainerToBody() {
-        const body = document.querySelector('body')
+        const body = getElement('body')
         const container = document.createElement('div')
         container.classList.add('toast-container')
 
@@ -212,7 +206,7 @@
      * 會做成彈窗是因為 Archive 的連結最後會連到不同 domain 的 url，會被 same orgin 擋。
      */
     function setArchiveEvent() {
-      const archiveDownloadButtons = document.querySelectorAll('form input[name="dlcheck"]')
+      const archiveDownloadButtons = getElements('form input[name="dlcheck"]')
       for (const button of archiveDownloadButtons) {
         button.addEventListener('click', e => {
           e.preventDefault()
@@ -222,7 +216,8 @@
 
           const popupWindow = openWindow(url)
           popupWindow.addEventListener('load', () => {
-            popupWindow.document.querySelector(`input[value="${buttonValue}"]`).click()
+            getElement(`input[value="${buttonValue}"]`, popupWindow)
+              .click()
           })
         })
       }
@@ -241,6 +236,14 @@
 
   function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+  function getElement(selector, doc = document) {
+    return doc.querySelector(selector)
+  }
+
+  function getElements(selector, doc = document) {
+    return doc.querySelectorAll(selector)
   }
 
   async function getDoc(url, options) {
@@ -328,7 +331,7 @@
       }
     `;
 
-    document.querySelector('head').append(style);
+    getElement('head').append(style);
   }
 })()
 
