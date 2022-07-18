@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.6
+// @version     1.0.7
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -110,6 +110,7 @@
       const doc = await getDoc(link)
       const popupContent = getPopupContent(doc, contentSelector)
       linkElement.after(popupContent)
+      linkElement.innerText += ' ✔️'
       
       setToggleEvent(linkElement, popupContent)
       
@@ -265,6 +266,14 @@
   function injectCss() {
     const style = document.createElement('style');
     style.textContent = `
+      div#gmid {
+        width: 931px;
+      }
+
+      div#gd5 {
+        width: 158px;
+      }
+
       .popup {
         position: absolute;
         top: -99999px;
