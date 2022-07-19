@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.7
+// @version     1.0.8
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -190,7 +190,7 @@
 
       function createToastElement(response, toastContainer) {
         const toast = document.createElement('div')
-        toast.innerHTML = response
+        toast.innerHTML = response.innerHTML
 
         toast.classList.add('toast')
         toast.addEventListener('animationend', function () {
