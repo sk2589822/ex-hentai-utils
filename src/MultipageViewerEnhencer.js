@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.10
+// @version     1.0.11
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -24,9 +24,11 @@
     
     const pageElevatorElem = createPageElevator()
     featuresContainer.append(pageElevatorElem)
-    setPageMouseWheelEvent(pageElevatorElem)
     overrideKeyBoardEvent()
     overrideImagesScrollEvent(pageElevatorElem)
+
+    setMouseWheelChangePageEvent(pageElevatorElem)
+    setClickChangePageEvent()
 
     const fitButton = createFitWindowHeightButton()
     featuresContainer.append(fitButton)
@@ -102,7 +104,7 @@
   /**
    * 滑鼠移到右側時，滾動直接換頁
    */
-  function setPageMouseWheelEvent(pageElevatorElem) {
+  function setMouseWheelChangePageEvent(pageElevatorElem) {
     document
       .querySelector('body')
       .addEventListener('mousewheel', e => {
@@ -114,13 +116,47 @@
         e.stopPropagation()
 
         if (Math.sign(e.deltaY) === -1) { // 滾輪向上
-          currentpage = --currentpage > 0 ? currentpage : 1
-          goToPage(currentpage) 
+          goToPrevPage()
         } else { // 滾輪向下
-          currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
-          goToPage(currentpage)
+          goToNextPage()
         }
       }, true)
+  }
+
+
+  /**
+   * 點擊畫面上半部 -> 上一頁
+   * 點擊畫面下半部 -> 下一頁
+   */
+  function setClickChangePageEvent() {
+    document
+      .querySelector('#pane_images')
+      .addEventListener('click', e => {
+
+        // 點擊資訊列則不動作
+        if (e.target.closest('.mi1')) {
+          return
+        }
+
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (e.clientY < window.innerHeight / 2) {
+          goToPrevPage()
+        } else {
+          goToNextPage()
+        }
+      })
+  }
+
+  function goToNextPage() {
+    currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
+    goToPage(currentpage)
+  }
+
+  function goToPrevPage() {
+    currentpage = --currentpage > 0 ? currentpage : 1
+    goToPage(currentpage)
   }
   
   function goToPage(index) {
@@ -152,12 +188,10 @@
           scroll_relative("pane_images", -50);
           break;
         case 'ArrowLeft':
-          currentpage = --currentpage > 0 ? currentpage : 1
-          goToPage(currentpage) 
+          goToPrevPage()
           break;
         case 'ArrowRight':
-          currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
-          goToPage(currentpage)
+          goToNextPage()
           break;
       }
     }
