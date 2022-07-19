@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.7
+// @version     1.0.8
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -20,8 +20,11 @@
   
     showThumbsWhenHover()
     
-    const pageElevatorElem = appendPageElevator()
-    setMouseWheelEvent(pageElevatorElem)
+    const featuresContainer = appendFeaturesContainer()
+    
+    const pageElevatorElem = createPageElevator()
+    featuresContainer.append(pageElevatorElem)
+    setPageMouseWheelEvent(pageElevatorElem)
     overrideKeyBoardEvent()
     overrideImagesScrollEvent(pageElevatorElem)
 
@@ -69,9 +72,17 @@
     })
   }
   
-  function appendPageElevator() {
+  function appendFeaturesContainer() {
+    const featuresContainer = document.createElement('div')
+    featuresContainer.classList.add('enhencer-features')
+    document.querySelector('#pane_outer').append(featuresContainer)
+
+    return featuresContainer
+  }
+  
+  function createPageElevator() {
     const pageElevatorElem = document.createElement('input')
-    pageElevatorElem.classList.add('page-elevator')
+    pageElevatorElem.classList.add('enhencer-features__page-elevator')
     pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數
     
     pageElevatorElem.addEventListener('keydown', e => {
@@ -93,18 +104,18 @@
       }
     })
     
-    document.querySelector('#pane_outer').append(pageElevatorElem)
-
     return pageElevatorElem
   }
 
   /**
    * 滑鼠移到右側時，滾動直接換頁
    */
-  function setMouseWheelEvent(pageElevatorElem) {
-    document.querySelector('#pane_images').addEventListener('mousewheel', e => {
+  function setPageMouseWheelEvent(pageElevatorElem) {
+    document
+      .querySelector('#pane_images')
+      .addEventListener('mousewheel', e => {
       // 以 page elevator 左側當作界線
-      if (e.x < pageElevatorElem.offsetLeft) {
+        if (e.x < pageElevatorElem.getBoundingClientRect().left) {
         return
       }
 
@@ -180,13 +191,27 @@
         transition: opacity .3s;
       }
 
-      .page-elevator {
+      .enhencer-features {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
         position: absolute;
         top: 50%;
         right: 5px;
         width: 30px;
-        height: 30px;
         transform: translate(0, -50%);
+        box-sizing: border-box;
+        z-index: 100;
+      }
+
+      .enhencer-features__page-elevator {
+        width: 100%;
+        display: flex;
+        padding: 0;
+        height: 30px;
+        margin: 0;
+        box-sizing: border-box;
+        border: #777 solid 1px;
         text-align: center;
       }
     `;
