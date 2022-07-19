@@ -28,7 +28,9 @@
     injectCss()
   }
   
-  // 於圖片資訊欄新增目前頁數/總共頁數
+  /**
+   * 於圖片資訊欄新增目前頁數/總共頁數
+   */
   function appendPageIndex() {
     const imageContainers = document.querySelectorAll('.mi0')
     const length = imageContainers.length
@@ -52,7 +54,9 @@
     })
   }
   
-  // 滑鼠移到左方時顯示縮圖清單
+  /**
+   * 滑鼠移到左方時顯示縮圖清單
+   */
   function showThumbsWhenHover() {
     const paneThumbs = document.querySelector('#pane_thumbs')
 
@@ -119,7 +123,9 @@
     document.getElementById(`image_${index}`).scrollIntoView();
   }
   
-  // onscroll 時同時更新 currentpage 至 pageElevatorElem 的 value
+  /**
+   * onscroll 時同時更新 currentpage 至 pageElevatorElem 的 value
+   */
   function overrideImagesScrollEvent(pageElevatorElem) {
     // exhentai 原為 pane_images.onscroll = preload_scroll_images
      pane_images.onscroll = () => {
@@ -128,7 +134,9 @@
     }
   }
   
-  // 只保留方向鍵的事件，且改寫左右鍵的方法
+  /**
+   * 只保留方向鍵的事件，且改寫左右鍵的方法
+   */
   function overrideKeyBoardEvent() {
     document.onkeydown = (e) => {
       switch (e.code) {
