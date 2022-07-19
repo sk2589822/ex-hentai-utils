@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.9
+// @version     1.0.10
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -19,7 +19,7 @@
     appendPageIndex()
   
     showThumbsWhenHover()
-    
+
     const featuresContainer = appendFeaturesContainer()
     
     const pageElevatorElem = createPageElevator()
@@ -27,6 +27,9 @@
     setPageMouseWheelEvent(pageElevatorElem)
     overrideKeyBoardEvent()
     overrideImagesScrollEvent(pageElevatorElem)
+
+    const fitButton = createFitWindowHeightButton()
+    featuresContainer.append(fitButton)
 
     injectCss()
   }
@@ -71,7 +74,7 @@
       }
     })
   }
-  
+
   function appendFeaturesContainer() {
     const featuresContainer = document.createElement('div')
     featuresContainer.classList.add('enhencer-features')
@@ -92,7 +95,7 @@
         goToPage(page)
       }
     })
-    
+
     return pageElevatorElem
   }
 
@@ -103,20 +106,20 @@
     document
       .querySelector('body')
       .addEventListener('mousewheel', e => {
-      // 以 page elevator 左側當作界線
+        // 以 page elevator 左側當作界線
         if (e.x < pageElevatorElem.getBoundingClientRect().left) {
-        return
-      }
+          return
+        }
 
         e.stopPropagation()
 
-      if (Math.sign(e.deltaY) === -1) { // 滾輪向上
-        currentpage = --currentpage > 0 ? currentpage : 1
-        goToPage(currentpage) 
-      } else { // 滾輪向下
-        currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
-        goToPage(currentpage)
-      }
+        if (Math.sign(e.deltaY) === -1) { // 滾輪向上
+          currentpage = --currentpage > 0 ? currentpage : 1
+          goToPage(currentpage) 
+        } else { // 滾輪向下
+          currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
+          goToPage(currentpage)
+        }
       }, true)
   }
   
@@ -160,19 +163,60 @@
     }
   }
 
+  /**
+   * 產生一個可切換圖片「原尺寸/符合視窗」高度的按鈕
+   */ 
+  function createFitWindowHeightButton() {
+    const fitButton = document.createElement('button')
+    fitButton.classList.add('enhencer-features__button')
+    fitButton.innerText = 'Fit'
+
+    const imagesContainer = document.querySelector('#pane_images')
+    fitButton.addEventListener('click', function() {
+      const fitWindowHeightClass = 'fit-window-height'
+      const activeClass = `enhencer-features__button--active`
+      
+      if (this.classList.contains(activeClass)) {
+        this.classList.remove(activeClass)
+        imagesContainer.classList.remove(fitWindowHeightClass)
+      } else {
+        this.classList.add(activeClass)
+        imagesContainer.classList.add(fitWindowHeightClass)
+      }
+      
+      goToPage(currentpage)
+    })
+
+    return fitButton
+  }
+
   function injectCss() {
     const style = document.createElement('style');
     style.textContent = `
+      html {
+        width: 100% !important;
+        height: 100% !important;
+      }
+
       body {
-        padding: 0
+        padding: 0;
+        width: 100% !important;
+        height: 100% !important;
       }
 
       div#pane_outer {
+        height: 100% !important;
         width: 100% !important;
       }
 
       div#pane_images {
+        height: 100% !important;
         width: 100% !important;
+      }
+
+      div#pane_images.fit-window-height img[id^=imgsrc_] {
+        width: auto !important;
+        height: 100vh !important;
       }
 
       div#pane_thumbs {
@@ -201,9 +245,30 @@
         padding: 0;
         height: 30px;
         margin: 0;
+        order: 2;
         box-sizing: border-box;
         border: #777 solid 1px;
         text-align: center;
+      }
+
+      .enhencer-features__button {
+        width: 100%;
+        height: 30px;
+        border: #777 solid 1px;
+        border-radius: 5px;
+        background-color: transparent;
+        box-sizing: border-box;
+        cursor: pointer;
+        order: 1;
+      }
+
+      .enhencer-features__button:hover {
+        background-color: #ffa50033;
+      }
+
+      .enhencer-features__button--active,
+      .enhencer-features__button--active:hover {
+        background-color: #ffa500;
       }
     `;
 
