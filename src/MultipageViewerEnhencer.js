@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.8
+// @version     1.0.9
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -93,17 +93,6 @@
       }
     })
     
-    pageElevatorElem.addEventListener('wheel', e => {
-      e.stopPropagation()
-      if (Math.sign(e.deltaY) === -1) { // 滾輪向上
-        currentpage = --currentpage > 0 ? currentpage : 1
-        goToPage(currentpage) 
-      } else { // 滾輪向下
-        currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
-        goToPage(currentpage)
-      }
-    })
-    
     return pageElevatorElem
   }
 
@@ -112,12 +101,14 @@
    */
   function setPageMouseWheelEvent(pageElevatorElem) {
     document
-      .querySelector('#pane_images')
+      .querySelector('body')
       .addEventListener('mousewheel', e => {
       // 以 page elevator 左側當作界線
         if (e.x < pageElevatorElem.getBoundingClientRect().left) {
         return
       }
+
+        e.stopPropagation()
 
       if (Math.sign(e.deltaY) === -1) { // 滾輪向上
         currentpage = --currentpage > 0 ? currentpage : 1
@@ -126,7 +117,7 @@
         currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
         goToPage(currentpage)
       }
-    })
+      }, true)
   }
   
   function goToPage(index) {
