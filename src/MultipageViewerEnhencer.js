@@ -93,7 +93,7 @@
     pageElevatorElem.addEventListener('keydown', e => {
       e.stopPropagation()
       if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-        const page = e.target.value
+        const page = Number(e.target.value)
         goToPage(page)
       }
     })
@@ -150,13 +150,20 @@
   }
 
   function goToNextPage() {
-    currentpage = ++currentpage < pagecount ? currentpage : pagecount  // pagecount 為 exhentai 內建變數
-    goToPage(currentpage)
+    // pagecount 為 exhentai 內建變數，表示總共的頁數
+    if (currentpage === pagecount) {
+      return
+    }
+    
+    goToPage(++currentpage)
   }
 
   function goToPrevPage() {
-    currentpage = --currentpage > 0 ? currentpage : 1
-    goToPage(currentpage)
+    if (currentpage === 1) {
+      return
+    }
+    
+    goToPage(--currentpage)
   }
   
   function goToPage(index) {
@@ -217,7 +224,7 @@
         this.classList.add(activeClass)
         imagesContainer.classList.add(fitWindowHeightClass)
       }
-      
+
       goToPage(currentpage)
     })
 
