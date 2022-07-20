@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.8
+// @version     1.0.9
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -59,7 +59,7 @@
     }
 
     function getImageElements(doc) {
-      return getElement('.gdtl', doc)
+      return getElements('.gdtl', doc)
     }
   
     function getPageUrls() {
