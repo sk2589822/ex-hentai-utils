@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.12
+// @version     1.0.13
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -30,8 +30,7 @@
     setMouseWheelChangePageEvent(pageElevatorElem)
     setClickChangePageEvent()
 
-    const fitButton = createFitWindowHeightButton()
-    featuresContainer.append(fitButton)
+    featuresContainer.append(...createImageHeightModifyButtons())
 
     injectCss()
   }
@@ -87,7 +86,7 @@
   
   function createPageElevator() {
     const pageElevatorElem = document.createElement('input')
-    pageElevatorElem.classList.add('enhencer-features__page-elevator')
+    pageElevatorElem.classList.add('enhencer-features__input')
     pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數
     
     pageElevatorElem.addEventListener('keydown', e => {
@@ -100,7 +99,7 @@
 
     return pageElevatorElem
   }
-
+  
   /**
    * 滑鼠移到右側時，滾動直接換頁
    */
@@ -203,32 +202,59 @@
       }
     }
   }
+  
+  let currentImageHeight = null
 
   /**
-   * 產生一個可切換圖片「原尺寸/符合視窗」高度的按鈕
+   * 產生一個可將圖片高度設定為特定高度的按鈕 (不會超過原圖最大高度)
    */ 
-  function createFitWindowHeightButton() {
-    const fitButton = document.createElement('button')
-    fitButton.classList.add('enhencer-features__button')
-    fitButton.innerText = 'Fit'
+  function createImageHeightModifyButtons() {
+    const heightList = [100, 125, 150, 175, 200]
+    
+    const buttons = []
+    for (const height of heightList) {
+      const fitButton = document.createElement('button')
+      fitButton.classList.add('enhencer-features__button', 'image-height-button', `image-height-button--${height}`)
+      fitButton.innerText = height
 
-    const imagesContainer = document.querySelector('#pane_images')
-    fitButton.addEventListener('click', function() {
-      const fitWindowHeightClass = 'fit-window-height'
-      const activeClass = `enhencer-features__button--active`
+      const imagesContainer = document.querySelector('#pane_images')
+      fitButton.addEventListener('click', function() {
+        const containerActiveClass = 'resize'
+        const buttonActiveClass = 'enhencer-features__button--active'
+        
+        removeClassFromElements('.image-height-button', buttonActiveClass)
+        
+        if (height === currentImageHeight) {
+          currentImageHeight = null
+          imagesContainer.classList.remove(containerActiveClass)
+          imagesContainer.style.removeProperty('--image-height')
+        } else {
+          addClassToElement(`.image-height-button--${height}`, buttonActiveClass)
+          imagesContainer.classList.add(containerActiveClass)
+          imagesContainer.style.setProperty('--image-height', `${height}vh`)
+          currentImageHeight = height
+        }
+        
+        goToPage(currentpage)
+      })
       
-      if (this.classList.contains(activeClass)) {
-        this.classList.remove(activeClass)
-        imagesContainer.classList.remove(fitWindowHeightClass)
-      } else {
-        this.classList.add(activeClass)
-        imagesContainer.classList.add(fitWindowHeightClass)
-      }
+      buttons.push(fitButton)
+    }
 
-      goToPage(currentpage)
+    return buttons
+  }
+  
+  function addClassToElement(selector, className) {
+    document
+      .querySelector(selector)
+      ?.classList
+      ?.add(className)
+  }
+  
+  function removeClassFromElements(selector, className) {
+    document.querySelectorAll(selector).forEach(elem => {
+      elem.classList.remove(className)
     })
-
-    return fitButton
   }
 
   function injectCss() {
@@ -255,9 +281,9 @@
         width: 100% !important;
       }
 
-      div#pane_images.fit-window-height img[id^=imgsrc_] {
+      div#pane_images.resize img[id^=imgsrc_] {
         width: auto !important;
-        height: 100vh !important;
+        height: var(--image-height) !important;
         max-height: calc(100% - 24px);
       }
 
@@ -281,7 +307,7 @@
         z-index: 100;
       }
 
-      .enhencer-features__page-elevator {
+      .enhencer-features__input {
         width: 100%;
         display: flex;
         padding: 0;
@@ -294,12 +320,14 @@
       }
 
       .enhencer-features__button {
+        padding: 0;
         width: 100%;
         height: 30px;
         border: #777 solid 1px;
         border-radius: 5px;
         background-color: transparent;
         box-sizing: border-box;
+        text-align: center;
         cursor: pointer;
         order: 1;
       }
