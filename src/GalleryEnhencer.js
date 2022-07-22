@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.9
+// @version     1.0.10
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -95,23 +95,47 @@
       }
     ]
 
-    const preloadPromises = configList.map(config => preloadLink(config))
-    await Promise.all(preloadPromises)
+    await Promise.all([
+      preloadTorrentLink(),
+      preloadArchiveLink()
+    ])
 
     setHentaiAtHomeEvent()
     setArchiveEvent()
 
-    async function preloadLink({ feature, linkSelector, contentSelector }) {
-      const log = logTemplate.bind(this, feature)
+    async function preloadTorrentLink() {
+      const log = logTemplate.bind(this, 'Preload Torrent Link')
       log('Start')
 
-      const linkElement = getElement(linkSelector)
+      const linkElement = getElement('#gd5 > p:nth-child(3) a')
       const link = getLink(linkElement)
       const doc = await getDoc(link)
-      const popupContent = getPopupContent(doc, contentSelector)
+      const popupContent = getPopupContent(doc, '#torrentinfo form > div')
       linkElement.after(popupContent)
       linkElement.innerText += ' ✔️'
       
+      if (linkElement.innerText === 'Torrent Download (1) ✔️') {
+        setDownloadEvent(linkElement, popupContent)
+      } else {
+        setToggleEvent(linkElement, popupContent)
+      }
+      
+      log('End')
+
+      return doc
+    }
+    
+    async function preloadArchiveLink() {
+      const log = logTemplate.bind(this, 'Preload Archive Link')
+      log('Start')
+
+      const linkElement = getElement('#gd5 > p:nth-child(2) a')
+      const link = getLink(linkElement)
+      const doc = await getDoc(link)
+      const popupContent = getPopupContent(doc, '#db')
+      linkElement.after(popupContent)
+      linkElement.innerText += ' ✔️'
+    
       setToggleEvent(linkElement, popupContent)
       
       log('End')
@@ -130,6 +154,14 @@
       content.removeAttribute('style')
       content.classList.add('popup')
       return content
+    }
+    
+    function setDownloadEvent(linkElement, popup) {
+      linkElement.removeAttribute('onclick')
+      linkElement.addEventListener('click', e => {
+        e.preventDefault()
+        getElement('a', popup).click()  
+      })
     }
   
     function setToggleEvent(linkElement, popup) {
