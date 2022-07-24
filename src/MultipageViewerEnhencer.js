@@ -39,13 +39,13 @@
    * 於圖片資訊欄新增目前頁數/總共頁數
    */
   function appendPageIndex() {
-    const imageContainers = document.querySelectorAll('.mi0')
+    const imageContainers = getElements('.mi0')
     const length = imageContainers.length
 
     const mutationObserver = new MutationObserver(([mutation]) => {
       const target = mutation.target
       const index = target.id.split('image_')[1]
-      const caption = target.querySelector('.mi4')
+      const caption = getElement('.mi4', target)
       const text = caption?.innerText
 
       if (!text || text?.includes(' ／ ')) {
@@ -65,7 +65,7 @@
    * 滑鼠移到左方時顯示縮圖清單
    */
   function showThumbsWhenHover() {
-    const paneThumbs = document.querySelector('#pane_thumbs')
+    const paneThumbs = getElement('#pane_thumbs')
 
     document.addEventListener('mousemove', e => {
       if (e.clientX < paneThumbs.offsetWidth + 15) {
@@ -79,7 +79,7 @@
   function appendFeaturesContainer() {
     const featuresContainer = document.createElement('div')
     featuresContainer.classList.add('enhencer-features')
-    document.querySelector('#pane_outer').append(featuresContainer)
+    getElement('#pane_outer').append(featuresContainer)
 
     return featuresContainer
   }
@@ -104,8 +104,7 @@
    * 滑鼠移到右側時，滾動直接換頁
    */
   function setMouseWheelChangePageEvent(pageElevatorElem) {
-    document
-      .querySelector('body')
+    getElement('body')
       .addEventListener('mousewheel', e => {
         // 以 page elevator 左側當作界線
         if (e.x < pageElevatorElem.getBoundingClientRect().left) {
@@ -217,7 +216,7 @@
       fitButton.classList.add('enhencer-features__button', 'image-height-button', `image-height-button--${height}`)
       fitButton.innerText = height
 
-      const imagesContainer = document.querySelector('#pane_images')
+      const imagesContainer = getElement('#pane_images')
       fitButton.addEventListener('click', function() {
         const containerActiveClass = 'resize'
         const buttonActiveClass = 'enhencer-features__button--active'
@@ -245,16 +244,23 @@
   }
   
   function addClassToElement(selector, className) {
-    document
-      .querySelector(selector)
+    getElement(selector)
       ?.classList
       ?.add(className)
   }
   
   function removeClassFromElements(selector, className) {
-    document.querySelectorAll(selector).forEach(elem => {
+    getElements(selector).forEach(elem => {
       elem.classList.remove(className)
     })
+  }
+
+  function getElement(selector, doc = document) {
+    return doc.querySelector(selector)
+  }
+
+  function getElements(selector, doc = document) {
+    return doc.querySelectorAll(selector)
   }
 
   function injectCss() {
@@ -347,6 +353,6 @@
       }
     `;
 
-    document.querySelector('head').append(style);
+    getElement('head').append(style);
   }
 })()
