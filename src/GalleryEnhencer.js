@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.10
+// @version     1.0.11
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -249,7 +249,7 @@
 
           const popupWindow = openWindow(url)
           popupWindow.addEventListener('load', () => {
-            getElement(`input[value="${buttonValue}"]`, popupWindow)
+            getElement(`input[value="${buttonValue}"]`, popupWindow.document)
               .click()
           })
         })
