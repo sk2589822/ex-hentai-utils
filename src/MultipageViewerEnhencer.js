@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.14
+// @version     1.0.15
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -108,6 +108,9 @@
       .addEventListener('mousewheel', e => {
         // 以 page elevator 左側當作界線
         if (e.x < pageElevatorElem.getBoundingClientRect().left) {
+          hideCursor()
+          getElement('#pane_images')
+            .addEventListener('mousemove', showCursor, { once: true })
           return
         }
 
@@ -118,17 +121,30 @@
         } else { // 滾輪向下
           goToNextPage()
         }
-      }, true)
+      },
+      true)
+
   }
 
+
+  function showCursor() {
+    getElement('#pane_images')
+      .classList
+      .remove('hide-cursor')
+  }
+
+  function hideCursor() {
+    getElement('#pane_images')
+      .classList
+      .add('hide-cursor')
+  }
 
   /**
    * 點擊畫面上半部 -> 上一頁
    * 點擊畫面下半部 -> 下一頁
    */
   function setClickChangePageEvent() {
-    document
-      .querySelector('#pane_images')
+    getElement('#pane_images')
       .addEventListener('click', e => {
 
         // 點擊資訊列則不動作
@@ -285,6 +301,10 @@
       div#pane_images {
         height: 100% !important;
         width: 100% !important;
+      }
+
+      div#pane_images.hide-cursor {
+        cursor: none;
       }
       
       div#pane_images.resize .mi0 {
