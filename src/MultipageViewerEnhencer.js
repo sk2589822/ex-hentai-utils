@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.15
+// @version     1.0.16
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -30,7 +30,7 @@
     setMouseWheelChangePageEvent(pageElevatorElem)
     setClickChangePageEvent()
 
-    featuresContainer.append(...createImageHeightModifyButtons())
+    featuresContainer.append(createImageHeightResizer())
 
     injectCss()
   }
@@ -86,10 +86,10 @@
   
   function createPageElevator() {
     const container = document.createElement('div')
-    container.classList.add('enhencer-features__page-elevator')
+    container.classList.add('enhencer-features__enhencer-feature','page-elevator', )
 
     const pageElevatorElem = document.createElement('input')
-    pageElevatorElem.classList.add('enhencer-features__input')
+    pageElevatorElem.classList.add('page-elevator__input')
     pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數，表示目前頁數
     
     pageElevatorElem.addEventListener('keydown', e => {
@@ -237,28 +237,30 @@
   /**
    * 產生一個可將圖片高度設定為特定高度的按鈕 (不會超過原圖最大高度)
    */ 
-  function createImageHeightModifyButtons() {
+  function createImageHeightResizer() {
     const heightList = [100, 125, 150, 175, 200]
     
-    const buttons = []
+    const container = document.createElement('div')
+    container.classList.add('enhencer-features__enhencer-feature', 'image-resizer')
+
     for (const height of heightList) {
       const fitButton = document.createElement('button')
-      fitButton.classList.add('enhencer-features__button', 'image-height-button', `image-height-button--${height}`)
+      fitButton.classList.add('image-resizer__button', `image-resizer__button--${height}`)
       fitButton.innerText = height
 
       const imagesContainer = getElement('#pane_images')
       fitButton.addEventListener('click', function() {
         const containerActiveClass = 'resize'
-        const buttonActiveClass = 'enhencer-features__button--active'
+        const buttonActiveClass = 'image-resizer__button--active'
         
-        removeClassFromElements('.image-height-button', buttonActiveClass)
+        removeClassFromElements('.image-resizer__button', buttonActiveClass)
         
         if (height === currentImageHeight) {
           currentImageHeight = null
           imagesContainer.classList.remove(containerActiveClass)
           imagesContainer.style.removeProperty('--image-height')
         } else {
-          addClassToElement(`.image-height-button--${height}`, buttonActiveClass)
+          addClassToElement(`.image-resizer__button--${height}`, buttonActiveClass)
           imagesContainer.classList.add(containerActiveClass)
           imagesContainer.style.setProperty('--image-height', `${height}vh`)
           currentImageHeight = height
@@ -267,10 +269,10 @@
         goToPage(currentpage)
       })
       
-      buttons.push(fitButton)
+      container.append(fitButton)
     }
 
-    return buttons
+    return container
   }
   
   function addClassToElement(selector, className) {
@@ -346,13 +348,25 @@
         position: absolute;
         top: 50%;
         right: 5px;
-        width: 30px;
+        width: 40px;
         transform: translate(0, -50%);
         box-sizing: border-box;
         z-index: 100;
       }
 
-      .enhencer-features__input {
+      .enhencer-features__enhencer-feature {
+        background: #77777777;
+        padding: 10px 5px;
+        border-radius: 10px;
+      }
+
+      .page-elevator {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .page-elevator__input {
         width: 100%;
         display: flex;
         padding: 0;
@@ -363,7 +377,17 @@
         text-align: center;
       }
 
-      .enhencer-features__button {
+      .page-elevator__slash {
+        line-height: 100%;
+      }
+
+      .image-resizer {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .image-resizer__button {
         padding: 0;
         width: 100%;
         height: 30px;
@@ -375,19 +399,13 @@
         cursor: pointer;
       }
 
-      .enhencer-features__button:hover {
+      .image-resizer__button:hover {
         background-color: #ffa50033;
       }
 
-      .enhencer-features__button--active,
-      .enhencer-features__button--active:hover {
+      .image-resizer__button--active,
+      .image-resizer__button--active:hover {
         background-color: #ffa500;
-      }
-
-      .enhencer-features__page-elevator {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
       }
     `;
 
