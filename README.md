@@ -16,4 +16,3 @@
 3. Add a page elevator to go to specific page quickly.
 4. Allow to use Click / scroll to change page.
 5. Add a button to toggle height of images (original / fit window)
-    > Can't set height of image container (.mi0) to `auto`, or the currentpage detection of exhentai will be broken.
