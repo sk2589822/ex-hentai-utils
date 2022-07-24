@@ -22,10 +22,10 @@
 
     const featuresContainer = appendFeaturesContainer()
     
-    const pageElevatorElem = createPageElevator()
-    featuresContainer.append(pageElevatorElem)
+    const [pageElevatorElem, pageElevatorContainer] = createPageElevator()
+    featuresContainer.append(pageElevatorContainer)
     overrideKeyBoardEvent()
-    overrideImagesScrollEvent(pageElevatorElem)
+    updateCurrentPageWhenScrolling(pageElevatorElem)
 
     setMouseWheelChangePageEvent(pageElevatorElem)
     setClickChangePageEvent()
@@ -85,9 +85,12 @@
   }
   
   function createPageElevator() {
+    const container = document.createElement('div')
+    container.classList.add('enhencer-features__page-elevator')
+
     const pageElevatorElem = document.createElement('input')
     pageElevatorElem.classList.add('enhencer-features__input')
-    pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數
+    pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數，表示目前頁數
     
     pageElevatorElem.addEventListener('keydown', e => {
       e.stopPropagation()
@@ -97,7 +100,18 @@
       }
     })
 
-    return pageElevatorElem
+    container.append(pageElevatorElem)
+
+    const slash = document.createElement('span')
+    slash.classList.add('page-elevator__slash')
+    slash.innerText = '／'
+    container.append(slash)
+
+    const totalPage = document.createElement('span')
+    totalPage.innerText = pagecount
+    container.append(totalPage)
+
+    return [pageElevatorElem, container]
   }
   
   /**
@@ -188,7 +202,7 @@
   /**
    * onscroll 時同時更新 currentpage 至 pageElevatorElem 的 value
    */
-  function overrideImagesScrollEvent(pageElevatorElem) {
+  function updateCurrentPageWhenScrolling(pageElevatorElem) {
     // exhentai 原為 pane_images.onscroll = preload_scroll_images
      pane_images.onscroll = () => {
       preload_scroll_images()
@@ -344,7 +358,6 @@
         padding: 0;
         height: 30px;
         margin: 0;
-        order: 2;
         box-sizing: border-box;
         border: #777 solid 1px;
         text-align: center;
@@ -360,7 +373,6 @@
         box-sizing: border-box;
         text-align: center;
         cursor: pointer;
-        order: 1;
       }
 
       .enhencer-features__button:hover {
@@ -370,6 +382,12 @@
       .enhencer-features__button--active,
       .enhencer-features__button--active:hover {
         background-color: #ffa500;
+      }
+
+      .enhencer-features__page-elevator {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
     `;
 
