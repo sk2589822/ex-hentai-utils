@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/mpv/*/*/
 // @grant       none
-// @version     1.0.13
+// @version     1.0.14
 // @author      -
 // @description 2021/12/17 下午9:54:11
 // ==/UserScript==
@@ -279,6 +279,11 @@
       div#pane_images {
         height: 100% !important;
         width: 100% !important;
+      }
+      
+      div#pane_images.resize .mi0 {
+        height: calc(var(--image-height) + 24px) !important;
+        width: max-content !important
       }
 
       div#pane_images.resize img[id^=imgsrc_] {
