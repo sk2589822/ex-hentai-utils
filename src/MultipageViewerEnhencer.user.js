@@ -40,8 +40,8 @@
     overrideKeyBoardEvent()
     updateCurrentPageWhenScrolling(pageElevatorElem)
 
-    setMouseWheelChangePageEvent(featuresContainer)
-    setClickChangePageEvent()
+    setMouseWheelEvent(featuresContainer)
+    setClickEvent()
 
     featuresContainer.append(createImageHeightResizer())
 
@@ -128,39 +128,42 @@
     return [pageElevatorElem, container]
   }
 
-  /**
-   * 滑鼠移到右側時，滾動直接換頁
-   */
-  function setMouseWheelChangePageEvent(featuresContainer) {
+  function setMouseWheelEvent(featuresContainer) {
     document.body
       .addEventListener('mousewheel', e => {
-        // 以 features container 左側當作界線
-        if (e.x < featuresContainer.offsetLeft) {
-          hideCursor(e)
-          setShowCursorEvent()
-        } else {
-          e.stopPropagation()
+        hideCursor(e)
+        setShowCursorEvent()
 
-          if (Math.sign(e.deltaY) === -1) { // 滾輪向上
-            goToPrevPage()
-          } else { // 滾輪向下
-            goToNextPage()
-          }
+        // 以 features container 左側當作界線
+        if (e.x >= featuresContainer.offsetLeft) {
+          changePage(e)
         }
       },
       true)
+
+    /**
+     * 滑鼠移到右側時，滾動直接換頁
+     */
+    function changePage(e) {
+      e.stopPropagation()
+
+      if (Math.sign(e.deltaY) === -1) { // 滾輪向上
+        goToPrevPage()
+      } else { // 滾輪向下
+        goToNextPage()
+      }
+    }
   }
 
   function setShowCursorEvent() {
-    const paneImages = getElement('#pane_images')
-    paneImages
+    document.body
       .addEventListener('mousemove', function listener (e) {
         if (!checkMouseDelta(e)) {
           return
         }
 
         showCursor()
-        paneImages.removeEventListener('mousemove', listener)
+        document.body.removeEventListener('mousemove', listener)
       })
   }
 
@@ -173,7 +176,7 @@
   }
 
   function showCursor() {
-    getElement('#pane_images')
+    document.body
       .classList
       .remove('hide-cursor')
   }
@@ -182,36 +185,41 @@
     prevMousePoint.x = clientX
     prevMousePoint.y = clientY 
 
-    getElement('#pane_images')
+    document.body
       .classList
       .add('hide-cursor')
   }
 
-  /**
-   * 點擊畫面上半部 -> 上一頁
-   * 點擊畫面下半部 -> 下一頁
-   */
-  function setClickChangePageEvent() {
-    getElement('#pane_images')
-      .addEventListener('click', e => {
+  
+  function setClickEvent() {
+    setChangePageEvent()
 
-        // 點擊資訊列則不動作
-        if (e.target.closest('.mi1')) {
-          return
-        }
+    /**
+     * 點擊畫面上半部 -> 上一頁
+     * 點擊畫面下半部 -> 下一頁
+     */
+    function setChangePageEvent() {
+      getElement('#pane_images')
+        .addEventListener('click', e => {
 
-        e.preventDefault()
-        e.stopPropagation()
+          // 點擊資訊列則不動作
+          if (e.target.closest('.mi1')) {
+            return
+          }
 
-        if (e.clientY < window.innerHeight / 2) {
-          goToPrevPage()
-        } else {
-          goToNextPage()
-        }
+          e.preventDefault()
+          e.stopPropagation()
 
-        hideCursor(e)
-        setShowCursorEvent()
-      })
+          if (e.clientY < window.innerHeight / 2) {
+            goToPrevPage()
+          } else {
+            goToNextPage()
+          }
+
+          hideCursor(e)
+          setShowCursorEvent()
+        })
+    }
   }
 
   function goToNextPage() {
