@@ -30,7 +30,7 @@
     overrideKeyBoardEvent()
     updateCurrentPageWhenScrolling(pageElevatorElem)
 
-    setMouseWheelChangePageEvent(pageElevatorElem)
+    setMouseWheelChangePageEvent(featuresContainer)
     setClickChangePageEvent()
 
     featuresContainer.append(createImageHeightResizer())
@@ -89,7 +89,7 @@
   
   function createPageElevator() {
     const container = document.createElement('div')
-    container.classList.add('enhencer-features__enhencer-feature','page-elevator', )
+    container.classList.add('enhencer-features__enhencer-feature', 'page-elevator')
 
     const pageElevatorElem = document.createElement('input')
     pageElevatorElem.classList.add('page-elevator__input')
@@ -120,12 +120,12 @@
   /**
    * 滑鼠移到右側時，滾動直接換頁
    */
-  function setMouseWheelChangePageEvent(pageElevatorElem) {
+  function setMouseWheelChangePageEvent(featuresContainer) {
     const paneImages = getElement('#pane_images')
     document.body
       .addEventListener('mousewheel', e => {
-        // 以 page elevator 左側當作界線
-        if (e.x < pageElevatorElem.getBoundingClientRect().left) {
+        // 以 features container 左側當作界線
+        if (e.x < featuresContainer.offsetLeft) {
           hideCursor(e)
 
           paneImages
@@ -331,6 +331,15 @@
         height: 100% !important;
       }
 
+      div#bar3 {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      div#bar3:hover {
+        opacity: 1;
+      }
+
       div#pane_outer {
         height: 100% !important;
         width: 100% !important;
@@ -374,11 +383,18 @@
         gap: 16px;
         position: absolute;
         top: 50%;
-        right: 5px;
-        width: 40px;
+        right: 0;
+        padding-right: 5px;
+        width: 45px;
         transform: translate(0, -50%);
+        transition: opacity 0.3s ease;
+        opacity: 0;
         box-sizing: border-box;
         z-index: 100;
+      }
+
+      .enhencer-features:hover {
+        opacity: 1;
       }
 
       .enhencer-features__enhencer-feature {
