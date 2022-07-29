@@ -132,22 +132,12 @@
    * 滑鼠移到右側時，滾動直接換頁
    */
   function setMouseWheelChangePageEvent(featuresContainer) {
-    const paneImages = getElement('#pane_images')
     document.body
       .addEventListener('mousewheel', e => {
         // 以 features container 左側當作界線
         if (e.x < featuresContainer.offsetLeft) {
           hideCursor(e)
-
-          paneImages
-            .addEventListener('mousemove', function listener (e) {
-              if (!checkMouseDelta(e)) {
-                return
-              }
-
-              showCursor()
-              paneImages.removeEventListener('mousemove', listener)
-            })
+          setShowCursorEvent()
         } else {
           e.stopPropagation()
 
@@ -159,6 +149,19 @@
         }
       },
       true)
+  }
+
+  function setShowCursorEvent() {
+    const paneImages = getElement('#pane_images')
+    paneImages
+      .addEventListener('mousemove', function listener (e) {
+        if (!checkMouseDelta(e)) {
+          return
+        }
+
+        showCursor()
+        paneImages.removeEventListener('mousemove', listener)
+      })
   }
 
   function checkMouseDelta({ clientX, clientY }) {
@@ -207,6 +210,7 @@
         }
 
         hideCursor(e)
+        setShowCursorEvent()
       })
   }
 
