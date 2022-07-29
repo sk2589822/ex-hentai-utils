@@ -319,7 +319,7 @@
         width: 100% !important;
       }
 
-      div#pane_images.hide-cursor {
+      .hide-cursor * {
         cursor: none;
       }
       
