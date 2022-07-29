@@ -194,6 +194,8 @@
         } else {
           goToNextPage()
         }
+
+        hideCursor(e)
       })
   }
 
