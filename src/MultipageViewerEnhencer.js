@@ -15,11 +15,14 @@
     document.addEventListener("DOMContentLoaded", main)
   }
 
+    const prevMousePoint = {
+    x: 0,
+    y: 0
+    }
+
   function main() {
     appendPageIndex()
   
-    showThumbsWhenHover()
-
     const featuresContainer = appendFeaturesContainer()
     
     const [pageElevatorElem, pageElevatorContainer] = createPageElevator()
@@ -118,28 +121,42 @@
    * 滑鼠移到右側時，滾動直接換頁
    */
   function setMouseWheelChangePageEvent(pageElevatorElem) {
+    const paneImages = getElement('#pane_images')
     document.body
       .addEventListener('mousewheel', e => {
         // 以 page elevator 左側當作界線
         if (e.x < pageElevatorElem.getBoundingClientRect().left) {
-          hideCursor()
-          getElement('#pane_images')
-            .addEventListener('mousemove', showCursor, { once: true })
-          return
-        }
+          hideCursor(e)
 
-        e.stopPropagation()
+          paneImages
+            .addEventListener('mousemove', function listener (e) {
+              if (!checkMouseDelta(e)) {
+                return
+              }
 
-        if (Math.sign(e.deltaY) === -1) { // 滾輪向上
-          goToPrevPage()
-        } else { // 滾輪向下
-          goToNextPage()
+              showCursor()
+              paneImages.removeEventListener('mousemove', listener)
+            })
+        } else {
+          e.stopPropagation()
+
+          if (Math.sign(e.deltaY) === -1) { // 滾輪向上
+            goToPrevPage()
+          } else { // 滾輪向下
+            goToNextPage()
+          }
         }
       },
       true)
-
   }
 
+  function checkMouseDelta({ clientX, clientY }) {
+    const threshold = 50
+    return (
+      Math.abs(clientX - prevMousePoint.x) >= threshold ||
+      Math.abs(clientY - prevMousePoint.y) >= threshold
+    )
+  }
 
   function showCursor() {
     getElement('#pane_images')
@@ -147,7 +164,10 @@
       .remove('hide-cursor')
   }
 
-  function hideCursor() {
+  function hideCursor({ clientX, clientY }) {
+    prevMousePoint.x = clientX
+    prevMousePoint.y = clientY 
+
     getElement('#pane_images')
       .classList
       .add('hide-cursor')
@@ -319,6 +339,7 @@
         width: 100% !important;
       }
 
+      .hide-cursor,
       .hide-cursor * {
         cursor: none;
       }
