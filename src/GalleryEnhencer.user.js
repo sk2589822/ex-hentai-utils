@@ -1,19 +1,23 @@
 // ==UserScript==
-// @name        Gallery Enhencer - exhentai.org
-// @namespace   Violentmonkey Scripts
-// @match       https://exhentai.org/g/*
-// @grant       none
-// @version     0.1.0
-// @author      -
-// @description 2022/6/26 下午1:21:59
+// @name         Gallery Enhencer
+// @namespace    https://github.com/sk2589822/ex-hentai-utils
+// @version      0.1.0
+// @description  Utils for Extentai Gallery
+// @author       JK
+// @match        https://exhentai.org/g/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=exhentai.org
+// @grant        none
 // ==/UserScript==
+
 (() => {
+  'use strict';
+
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     main()
   } else {
     document.addEventListener("DOMContentLoaded", main)
   }
-  
+
   function main() {
     injectCss()
     preloadLinks()
@@ -53,7 +57,7 @@
     }
 
     log('Done')
-  
+
     function isFirstPage() {
       return getElement('.ptds').innerText === '1'
     }
@@ -61,15 +65,15 @@
     function getImageElements(doc) {
       return getElements('.gdtl', doc)
     }
-  
+
     function getPageUrls() {
       const indexes = [...getElements('.ptb td:not(.ptds)')]
       indexes.pop()
       indexes.shift()
-  
+
       return indexes.map(elem => elem.children[0].href)
     }
-  
+
     function appendImages(elems) {
       getElement('#gdt > .c')
         .before(...elems)
@@ -101,18 +105,18 @@
       const popupContent = getPopupContent(doc, '#torrentinfo > div:first-child')
       linkElement.after(popupContent)
       linkElement.innerText += ' ✔️'
-      
+
       if (linkElement.innerText === 'Torrent Download (1) ✔️') {
         setDownloadEvent(linkElement, popupContent)
       } else {
         setToggleEvent(linkElement, popupContent)
       }
-      
+
       log('End')
 
       return doc
     }
-    
+
     async function preloadArchiveLink() {
       const log = logTemplate.bind(this, 'Preload Archive Link')
       log('Start')
@@ -123,14 +127,14 @@
       const popupContent = getPopupContent(doc, '#db')
       linkElement.after(popupContent)
       linkElement.innerText += ' ✔️'
-    
+
       setToggleEvent(linkElement, popupContent)
-      
+
       log('End')
 
       return doc
     }
-  
+
     function getLink(linkElement) {
       return linkElement
         .getAttribute('onclick')
@@ -143,15 +147,14 @@
       content.classList.add('popup')
       return content
     }
-    
     function setDownloadEvent(linkElement, popup) {
       linkElement.removeAttribute('onclick')
       linkElement.addEventListener('click', e => {
         e.preventDefault()
-        getElement('a', popup).click()  
+        getElement('a', popup).click()
       })
     }
-  
+
     function setToggleEvent(linkElement, popup) {
       linkElement.removeAttribute('onclick')
       linkElement.addEventListener('click', (e) => {
@@ -290,7 +293,6 @@
 
   function logTemplate(featrue, message, error) {
     const icon = [`%c ${featrue} `, 'background: #777; border-radius: 5px']
-    
     if (error) {
       console.error(...icon, message, error)
     } else {

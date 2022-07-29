@@ -1,14 +1,17 @@
 // ==UserScript==
-// @name        Multipage Viewer Enhencer - exhentai.org
-// @namespace   Violentmonkey Scripts
-// @match       https://exhentai.org/mpv/*/*/
-// @grant       none
-// @version     0.1.0
-// @author      -
-// @description 2021/12/17 下午9:54:11
+// @name         Multipage Viewer Enhencer
+// @namespace    https://github.com/sk2589822/ex-hentai-utils
+// @version      0.1.0
+// @description  Utils for Extentai Multipage Viewer
+// @author       JK
+// @match        https://exhentai.org/mpv/*/*/
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=exhentai.org
+// @grant        none
 // ==/UserScript==
 
 (() => {
+  'use strict';
+
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     main()
   } else {
@@ -22,9 +25,9 @@
 
   function main() {
     appendPageIndex()
-  
+
     const featuresContainer = appendFeaturesContainer()
-    
+
     const [pageElevatorElem, pageElevatorContainer] = createPageElevator()
     featuresContainer.append(pageElevatorContainer)
     overrideKeyBoardEvent()
@@ -37,7 +40,7 @@
 
     injectCss()
   }
-  
+
   /**
    * 於圖片資訊欄新增目前頁數/總共頁數
    */
@@ -63,7 +66,7 @@
       mutationObserver.observe(container, config);
     })
   }
-  
+
   /**
    * 滑鼠移到左方時顯示縮圖清單
    */
@@ -86,7 +89,7 @@
 
     return featuresContainer
   }
-  
+
   function createPageElevator() {
     const container = document.createElement('div')
     container.classList.add('enhencer-features__enhencer-feature', 'page-elevator')
@@ -94,7 +97,7 @@
     const pageElevatorElem = document.createElement('input')
     pageElevatorElem.classList.add('page-elevator__input')
     pageElevatorElem.value = currentpage // currentpage 為 exhentai 內建變數，表示目前頁數
-    
+
     pageElevatorElem.addEventListener('keydown', e => {
       e.stopPropagation()
       if (e.code === 'Enter' || e.code === 'NumpadEnter') {
@@ -116,7 +119,7 @@
 
     return [pageElevatorElem, container]
   }
-  
+
   /**
    * 滑鼠移到右側時，滾動直接換頁
    */
@@ -204,7 +207,7 @@
     if (currentpage === pagecount) {
       return
     }
-    
+
     goToPage(++currentpage)
   }
 
@@ -212,15 +215,15 @@
     if (currentpage === 1) {
       return
     }
-    
+
     goToPage(--currentpage)
   }
-  
+
   function goToPage(index) {
     currentpage = index
     document.getElementById(`image_${index}`).scrollIntoView();
   }
-  
+
   /**
    * onscroll 時同時更新 currentpage 至 pageElevatorElem 的 value
    */
@@ -231,7 +234,7 @@
       pageElevatorElem.value = currentpage
     }
   }
-  
+
   /**
    * 只保留方向鍵的事件，且改寫左右鍵的方法
    */
@@ -253,7 +256,7 @@
       }
     }
   }
-  
+
   let currentImageHeight = null
 
   /**
@@ -261,7 +264,7 @@
    */ 
   function createImageHeightResizer() {
     const heightList = [100, 125, 150, 175, 200]
-    
+
     const container = document.createElement('div')
     container.classList.add('enhencer-features__enhencer-feature', 'image-resizer')
 
@@ -274,9 +277,9 @@
       fitButton.addEventListener('click', function() {
         const containerActiveClass = 'resize'
         const buttonActiveClass = 'image-resizer__button--active'
-        
+
         removeClassFromElements('.image-resizer__button', buttonActiveClass)
-        
+
         if (height === currentImageHeight) {
           currentImageHeight = null
           imagesContainer.classList.remove(containerActiveClass)
@@ -287,22 +290,22 @@
           imagesContainer.style.setProperty('--image-height', `${height}vh`)
           currentImageHeight = height
         }
-        
+
         goToPage(currentpage)
       })
-      
+
       container.append(fitButton)
     }
 
     return container
   }
-  
+
   function addClassToElement(selector, className) {
     getElement(selector)
       ?.classList
       ?.add(className)
   }
-  
+
   function removeClassFromElements(selector, className) {
     getElements(selector).forEach(elem => {
       elem.classList.remove(className)
@@ -358,7 +361,7 @@
       .mi0 {
         pointer-events: none;
       }
-      
+
       div#pane_images.resize .mi0 {
         height: calc(var(--image-height) + 24px) !important;
         width: max-content !important
