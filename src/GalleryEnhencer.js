@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.13
+// @version     0.1.0
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
