@@ -10,12 +10,12 @@
 // ==/UserScript==
 
 (() => {
-  'use strict';
+  'use strict'
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     main()
   } else {
-    document.addEventListener("DOMContentLoaded", main)
+    document.addEventListener('DOMContentLoaded', main)
   }
 
   function main() {
@@ -182,9 +182,9 @@
 
       const hentaiAtHomeLinks = getElements('#db table td a')
 
-      for (link of hentaiAtHomeLinks) {
+      for (const link of hentaiAtHomeLinks) {
         const postUrl = getElement('#hathdl_form').getAttribute('action')
-        const resolution = link.getAttribute('onclick').split("'")[1]
+        const resolution = link.getAttribute('onclick').split('\'')[1]
         link.removeAttribute('onclick')
 
         link.addEventListener('click', async () => {
@@ -211,7 +211,7 @@
         return container
       }
 
-      function createToastElement(response, toastContainer) {
+      function createToastElement(response) {
         const toast = document.createElement('div')
         toast.innerHTML = response.innerHTML
 
@@ -288,7 +288,7 @@
   async function getDoc(url, options) {
     const response = await fetch(url, options)
     const html = await response.text()
-    return new DOMParser().parseFromString(html, 'text/html');
+    return new DOMParser().parseFromString(html, 'text/html')
   }
 
   function logTemplate(featrue, message, error) {
@@ -301,7 +301,7 @@
   }
 
   function injectCss() {
-    const style = document.createElement('style');
+    const style = document.createElement('style')
     style.textContent = `
       div#gmid {
         width: 931px;
@@ -375,15 +375,8 @@
           opacity: 0;
         }
       }
-    `;
+    `
 
-    getElement('head').append(style);
+    getElement('head').append(style)
   }
 })()
-
-// extentai 自己的下載的 Archive function
-function do_hathdl(xres) {
-  document.getElementById("hathdl_xres").value = xres
-  document.getElementById("hathdl_form").submit()
-  return false
-}

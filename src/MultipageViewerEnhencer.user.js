@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // ==UserScript==
 // @name         Multipage Viewer Enhencer
 // @namespace    https://github.com/sk2589822/ex-hentai-utils
@@ -10,21 +11,27 @@
 // ==/UserScript==
 
 (() => {
-  'use strict';
+  'use strict'
+  // currentpage: exhentai 內建變數，表示目前頁數
+  // pagecount: exhentai 內建變數，表示總頁數
+  // scroll_relative: exhentai 內建 function，實現 scrolling
+  // preload_scroll_images: exhentai 內建 function，scroll 時根據目前頁數去 preload images
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     main()
   } else {
-    document.addEventListener("DOMContentLoaded", main)
+    document.addEventListener('DOMContentLoaded', main)
   }
 
-    const prevMousePoint = {
+  const prevMousePoint = {
     x: 0,
     y: 0
-    }
+  }
 
   function main() {
     appendPageIndex()
+
+    showThumbsWhenHover()
 
     const featuresContainer = appendFeaturesContainer()
 
@@ -58,12 +65,13 @@
         return
       }
 
+      // eslint-disable-next-line no-irregular-whitespace
       caption.innerText = `${text}　-　${index} ／ ${length}`
     })
 
-    const config = { attributes: true };
+    const config = { attributes: true }
     imageContainers.forEach(container => {
-      mutationObserver.observe(container, config);
+      mutationObserver.observe(container, config)
     })
   }
 
@@ -221,7 +229,7 @@
 
   function goToPage(index) {
     currentpage = index
-    document.getElementById(`image_${index}`).scrollIntoView();
+    document.getElementById(`image_${index}`).scrollIntoView()
   }
 
   /**
@@ -229,7 +237,8 @@
    */
   function updateCurrentPageWhenScrolling(pageElevatorElem) {
     // exhentai 原為 pane_images.onscroll = preload_scroll_images
-     pane_images.onscroll = () => {
+    // eslint-disable-next-line no-undef
+    pane_images.onscroll = () => {
       preload_scroll_images()
       pageElevatorElem.value = currentpage
     }
@@ -241,18 +250,18 @@
   function overrideKeyBoardEvent() {
     document.onkeydown = (e) => {
       switch (e.code) {
-        case 'ArrowUp':
-          scroll_relative("pane_images", 50); // scroll_relative 為 exhentai 內建變數 function
-          break;
-        case 'ArrowDown':
-          scroll_relative("pane_images", -50);
-          break;
-        case 'ArrowLeft':
-          goToPrevPage()
-          break;
-        case 'ArrowRight':
-          goToNextPage()
-          break;
+      case 'ArrowUp':
+        scroll_relative('pane_images', 50) // scroll_relative 為 exhentai 內建變數 function
+        break
+      case 'ArrowDown':
+        scroll_relative('pane_images', -50)
+        break
+      case 'ArrowLeft':
+        goToPrevPage()
+        break
+      case 'ArrowRight':
+        goToNextPage()
+        break
       }
     }
   }
@@ -321,7 +330,7 @@
   }
 
   function injectCss() {
-    const style = document.createElement('style');
+    const style = document.createElement('style')
     style.textContent = `
       html {
         width: 100% !important;
@@ -453,8 +462,8 @@
       .image-resizer__button--active:hover {
         background-color: #ffa500;
       }
-    `;
+    `
 
-    getElement('head').append(style);
+    getElement('head').append(style)
   }
 })()
