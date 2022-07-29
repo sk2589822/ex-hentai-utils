@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.12
+// @version     1.0.13
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -98,7 +98,7 @@
       const linkElement = getElement('#gd5 > p:nth-child(3) a')
       const link = getLink(linkElement)
       const doc = await getDoc(link)
-      const popupContent = getPopupContent(doc, '#torrentinfo form > div')
+      const popupContent = getPopupContent(doc, '#torrentinfo > div:first-child')
       linkElement.after(popupContent)
       linkElement.innerText += ' ✔️'
       
