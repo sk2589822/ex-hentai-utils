@@ -322,6 +322,10 @@
       .hide-cursor * {
         cursor: none;
       }
+
+      .mi0 {
+        pointer-events: none;
+      }
       
       div#pane_images.resize .mi0 {
         height: calc(var(--image-height) + 24px) !important;
