@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://exhentai.org/g/*
 // @grant       none
-// @version     1.0.11
+// @version     1.0.12
 // @author      -
 // @description 2022/6/26 下午1:21:59
 // ==/UserScript==
@@ -82,19 +82,6 @@
    * 同時把原先的 window.open() popup 改為在同一個頁面內的 popup
    */
   async function preloadLinks() {
-    const configList = [
-      {
-        feature: 'Preload Torrent Links',
-        linkSelector: '#gd5 > p:nth-child(3) a',
-        contentSelector: '#torrentinfo form > div'
-      },
-      {
-        feature: 'Preload Archive Links',
-        linkSelector: '#gd5 > p:nth-child(2) a',
-        contentSelector: '#db'
-      }
-    ]
-
     await Promise.all([
       preloadTorrentLink(),
       preloadArchiveLink()
@@ -102,6 +89,7 @@
 
     setHentaiAtHomeEvent()
     setArchiveEvent()
+    setClickOutsideEvent()
 
     async function preloadTorrentLink() {
       const log = logTemplate.bind(this, 'Preload Torrent Link')
@@ -168,6 +156,7 @@
       linkElement.removeAttribute('onclick')
       linkElement.addEventListener('click', (e) => {
         e.preventDefault()
+        e.stopPropagation()
 
         const showClass = 'popup--show'
         if (popup.classList.contains(showClass)) {
@@ -264,6 +253,21 @@
         return window.open(url, target,`width=${width},height=${height},top=${top},left=${left}`)
       }
     }
+  }
+
+  function setClickOutsideEvent() {
+    document.addEventListener('click', e => {
+      const popup = getElement('.popup--show')
+      if (!popup) {
+        return
+      }
+
+      if (popup.contains(e.target)) {
+        return 
+      }
+
+      popup.classList.remove('popup--show')
+    })
   }
 
   function delay(ms) {
