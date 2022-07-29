@@ -118,7 +118,7 @@
    * 滑鼠移到右側時，滾動直接換頁
    */
   function setMouseWheelChangePageEvent(pageElevatorElem) {
-    getElement('body')
+    document.body
       .addEventListener('mousewheel', e => {
         // 以 page elevator 左側當作界線
         if (e.x < pageElevatorElem.getBoundingClientRect().left) {

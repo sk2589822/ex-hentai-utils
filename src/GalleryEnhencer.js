@@ -211,11 +211,10 @@
       }
 
       function appendToastContainerToBody() {
-        const body = getElement('body')
         const container = document.createElement('div')
         container.classList.add('toast-container')
 
-        body.append(container)
+        document.body.append(container)
 
         return container
       }
@@ -376,9 +375,9 @@
   }
 })()
 
-// 原生 Archive function
+// extentai 自己的下載的 Archive function
 function do_hathdl(xres) {
-	document.getElementById("hathdl_xres").value = xres;
-	document.getElementById("hathdl_form").submit();
-	return false;
+  document.getElementById("hathdl_xres").value = xres
+  document.getElementById("hathdl_form").submit()
+  return false
 }
