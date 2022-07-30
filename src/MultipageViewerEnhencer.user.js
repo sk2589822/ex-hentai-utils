@@ -407,21 +407,25 @@
 
       .enhencer-features {
         display: flex;
-        flex-direction: column;
+        flex-direction: row-reverse;
+        align-items: center;
         gap: 16px;
         position: absolute;
         top: 50%;
         right: 0;
         padding-right: 5px;
-        width: 45px;
         transform: translate(0, -50%);
-        transition: opacity 0.3s ease;
-        opacity: 0;
         box-sizing: border-box;
         z-index: 100;
       }
 
-      .enhencer-features:hover {
+      .enhencer-features > * {
+        box-sizing: border-box;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .enhencer-features:hover > * {
         opacity: 1;
       }
 
@@ -435,6 +439,8 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        width: 40px;
+        opacity: 1;
       }
 
       .page-elevator__input {
@@ -456,6 +462,7 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
+        width: 40px;
       }
 
       .image-resizer__button {
