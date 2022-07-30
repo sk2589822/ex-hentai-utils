@@ -199,26 +199,30 @@
      * 點擊畫面下半部 -> 下一頁
      */
     function setChangePageEvent() {
-      getElement('#pane_images')
-        .addEventListener('click', e => {
+      const config = [
+        { event: 'click', action: goToNextPage },
+        { event: 'contextmenu', action: goToPrevPage },
+      ]
 
-          // 點擊資訊列則不動作
-          if (e.target.closest('.mi1')) {
-            return
-          }
+      const paneImages = getElement('#pane_images')
 
-          e.preventDefault()
-          e.stopPropagation()
+      config.forEach(({ event, action }) => {
+        paneImages
+          .addEventListener(event, e => {
+            // 點擊資訊列不動作
+            if (e.target.closest('.mi1')) {
+              return
+            }
 
-          if (e.clientY < window.innerHeight / 2) {
-            goToPrevPage()
-          } else {
-            goToNextPage()
-          }
+            e.preventDefault()
+            e.stopPropagation()
 
-          hideCursor(e)
-          setShowCursorEvent()
-        })
+            action()
+
+            hideCursor(e)
+            setShowCursorEvent()
+          })
+      })
     }
   }
 
