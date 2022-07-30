@@ -388,14 +388,13 @@
       }
 
       div#pane_images.resize .mi0 {
-        height: calc(var(--image-height) + 24px) !important;
-        width: max-content !important
+        width: max-content !important;
+        max-height: calc(var(--image-height) + 24px) !important;
       }
 
       div#pane_images.resize img[id^=imgsrc_] {
         width: auto !important;
-        height: var(--image-height) !important;
-        max-height: calc(100% - 24px);
+        max-height: var(--image-height);
       }
 
       div#pane_thumbs {
