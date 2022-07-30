@@ -188,6 +188,11 @@
         link.removeAttribute('onclick')
 
         link.addEventListener('click', async () => {
+          // HACK: 不加 setTimeout popup 會自己消失
+          setTimeout(() => {
+            link.parentElement.innerHTML = '✔️'
+          }, 0)
+
           const formData = new FormData()
           formData.append('hathdl_xres', resolution)
           const doc = await getDoc(postUrl, {
