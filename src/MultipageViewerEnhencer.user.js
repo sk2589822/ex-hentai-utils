@@ -23,11 +23,6 @@
     document.addEventListener('DOMContentLoaded', main)
   }
 
-  const prevMousePoint = {
-    x: 0,
-    y: 0
-  }
-
   function main() {
     appendPageIndex()
 
@@ -165,6 +160,11 @@
         showCursor()
         document.body.removeEventListener('mousemove', listener)
       })
+  }
+
+  const prevMousePoint = {
+    x: 0,
+    y: 0
   }
 
   function checkMouseDelta({ clientX, clientY }) {
