@@ -5,6 +5,7 @@
 ### features:
 1. Load all images sequentially if the images number of gallery more than 200
 2. Show popup div instead of window popup when click `Archive Download` or `Torrent Download`
+3. Go to next/prev row if mouse wheel on images container
 
 ---
 
