@@ -152,7 +152,7 @@
 
   function setShowCursorEvent() {
     document.body
-      .addEventListener('mousemove', function listener (e) {
+      .addEventListener('mousemove', function listener(e) {
         if (!checkMouseDelta(e)) {
           return
         }
@@ -164,7 +164,7 @@
 
   const prevMousePoint = {
     x: 0,
-    y: 0
+    y: 0,
   }
 
   function checkMouseDelta({ clientX, clientY }) {
@@ -183,14 +183,14 @@
 
   function hideCursor({ clientX, clientY }) {
     prevMousePoint.x = clientX
-    prevMousePoint.y = clientY 
+    prevMousePoint.y = clientY
 
     document.body
       .classList
       .add('hide-cursor')
   }
 
-  
+
   function setClickEvent() {
     setChangePageEvent()
 
@@ -200,8 +200,14 @@
      */
     function setChangePageEvent() {
       const config = [
-        { event: 'click', action: goToNextPage },
-        { event: 'contextmenu', action: goToPrevPage },
+        {
+          event: 'click',
+          action: goToNextPage,
+        },
+        {
+          event: 'contextmenu',
+          action: goToPrevPage,
+        },
       ]
 
       const paneImages = getElement('#pane_images')
@@ -264,7 +270,7 @@
    * 只保留方向鍵的事件，且改寫左右鍵的方法
    */
   function overrideKeyBoardEvent() {
-    document.onkeydown = (e) => {
+    document.onkeydown = e => {
       switch (e.code) {
       case 'ArrowUp':
         scroll_relative('pane_images', 50) // scroll_relative 為 exhentai 內建變數 function
@@ -286,7 +292,7 @@
 
   /**
    * 產生一個可將圖片高度設定為特定高度的按鈕 (不會超過原圖最大高度)
-   */ 
+   */
   function createImageHeightResizer() {
     const heightList = [100, 125, 150, 175, 200]
 
@@ -299,7 +305,7 @@
       fitButton.innerText = height
 
       const imagesContainer = getElement('#pane_images')
-      fitButton.addEventListener('click', function() {
+      fitButton.addEventListener('click', () => {
         const containerActiveClass = 'resize'
         const buttonActiveClass = 'image-resizer__button--active'
 

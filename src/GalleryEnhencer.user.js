@@ -91,13 +91,13 @@
 
   /**
    * 預先載入 Torrent 和 Archive 視窗
-   * 
+   *
    * 同時把原先的 window.open() popup 改為在同一個頁面內的 popup
    */
   async function preloadLinks() {
     await Promise.all([
       preloadTorrentLink(),
-      preloadArchiveLink()
+      preloadArchiveLink(),
     ])
 
     setHentaiAtHomeEvent()
@@ -166,7 +166,7 @@
 
     function setToggleEvent(linkElement, popup) {
       linkElement.removeAttribute('onclick')
-      linkElement.addEventListener('click', (e) => {
+      linkElement.addEventListener('click', e => {
         e.preventDefault()
         e.stopPropagation()
 
@@ -181,7 +181,7 @@
 
     /**
      * 重新實作 Hentai@Home 的下載事件
-     * 
+     *
      * 原本會開一個新的頁面，裡面有 submit form 的 function
      * 因為改用 preload 就沒辦法呼叫該 function，所以這邊要補實作
      */
@@ -206,7 +206,7 @@
           formData.append('hathdl_xres', resolution)
           const doc = await getDoc(postUrl, {
             method: 'POST',
-            body: formData
+            body: formData,
           })
 
           const response = getElement('#db', doc)
@@ -230,7 +230,7 @@
         toast.innerHTML = response.innerHTML
 
         toast.classList.add('toast')
-        toast.addEventListener('animationend', function () {
+        toast.addEventListener('animationend', function() {
           this.remove()
         })
 
@@ -240,7 +240,7 @@
 
     /**
      * 點擊 Archive 的下載按鈕時，將原本的下載視窗彈出
-     * 
+     *
      * 會做成彈窗是因為 Archive 的連結最後會連到不同 domain 的 url，會被 same orgin 擋。
      */
     function setArchiveEvent() {
@@ -267,7 +267,7 @@
         const top = (screen.height - 300) / 2
         const target = `_archive+${String(Math.random()).split('.')[1]}`
 
-        return window.open(url, target,`width=${width},height=${height},top=${top},left=${left}`)
+        return window.open(url, target, `width=${width},height=${height},top=${top},left=${left}`)
       }
     }
   }
@@ -280,7 +280,7 @@
       }
 
       if (popup.contains(e.target)) {
-        return 
+        return
       }
 
       popup.classList.remove('popup--show')
@@ -299,7 +299,7 @@
 
       const firstVisibleImage = firstImagesOfRows[firstVisibleImageIndex]
       const boundingTop = firstVisibleImage.getBoundingClientRect().top
-    
+
       let nextIndex = firstVisibleImageIndex
       if (Math.sign(e.deltaY) === 1 && boundingTop <= 0) {
         nextIndex++
