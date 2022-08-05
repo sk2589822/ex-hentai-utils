@@ -35,8 +35,7 @@
     overrideKeyBoardEvent()
     updateCurrentPageWhenScrolling(pageElevatorElem)
 
-    setMouseWheelEvent(featuresContainer)
-    setClickEvent()
+    setChangePageEvent(featuresContainer)
 
     featuresContainer.append(createImageHeightResizer())
 
@@ -123,33 +122,6 @@
     return [pageElevatorElem, container]
   }
 
-  function setMouseWheelEvent(featuresContainer) {
-    document.body
-      .addEventListener('mousewheel', e => {
-        hideCursor(e)
-        setShowCursorEvent()
-
-        // 以 features container 左側當作界線
-        if (e.x >= featuresContainer.offsetLeft) {
-          changePage(e)
-        }
-      },
-      true)
-
-    /**
-     * 滑鼠移到右側時，滾動直接換頁
-     */
-    function changePage(e) {
-      e.stopPropagation()
-
-      if (Math.sign(e.deltaY) === -1) { // 滾輪向上
-        goToPrevPage()
-      } else { // 滾輪向下
-        goToNextPage()
-      }
-    }
-  }
-
   function setShowCursorEvent() {
     document.body
       .addEventListener('mousemove', function listener(e) {
@@ -190,15 +162,15 @@
       .add('hide-cursor')
   }
 
-
-  function setClickEvent() {
-    setChangePageEvent()
+  function setChangePageEvent(featuresContainer) {
+    setClickEvent()
+    setMouseWheelEvent()
 
     /**
      * 點擊畫面上半部 -> 上一頁
      * 點擊畫面下半部 -> 下一頁
      */
-    function setChangePageEvent() {
+    function setClickEvent() {
       const config = [
         {
           event: 'click',
@@ -229,6 +201,33 @@
             setShowCursorEvent()
           })
       })
+    }
+
+    /**
+     * 若滾動時滑鼠在右側，直接換頁
+     */
+    function setMouseWheelEvent() {
+      document.body
+        .addEventListener('mousewheel', e => {
+          hideCursor(e)
+          setShowCursorEvent()
+
+          // 以 features container 左側當作界線
+          if (e.x >= featuresContainer.offsetLeft) {
+            changePage(e)
+          }
+        },
+        true)
+
+      function changePage(e) {
+        e.stopPropagation()
+
+        if (Math.sign(e.deltaY) === -1) { // 滾輪向上
+          goToPrevPage()
+        } else { // 滾輪向下
+          goToNextPage()
+        }
+      }
     }
   }
 
