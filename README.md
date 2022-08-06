@@ -1,5 +1,8 @@
 # ex-hentai-utils
 
+## Deprecated
+Move to [Exhentai-Enhencer](https://github.com/sk2589822/Exhentai-Enhencer) and rewrite by Vue 3 + TS + Vite
+
 ## Gallery Enhencer
 
 ### features:
